@@ -1,0 +1,145 @@
+﻿@{
+    Layout = "";
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link href="~/CSS/index.css" rel="stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="@("https://unpkg.com/@microsoft/teams-js@1.4.1/dist/MicrosoftTeams.min.js")"></script>
+    <title>Screen</title>
+    <script>
+        microsoftTeams.initialize();
+        function SendAdaptiveCard() {
+
+            let taskInfo = {
+                taskNumber: $('#taskNumber').val(),
+                taskAssignedTo: $('#taskCreatedBy').val(),
+                status: $('#status').val(),
+                priority: $('#priority').val(),
+                title: $('#title').val(),
+                description: $('#description').val(),
+                startDate: $('#startDate').val(),
+                dueDate: $('#dueDate').val(),
+                attachement: $('#attachement').val(),
+                subscribers: $('#subscribers').val(),
+                depemdemtOn: $('#depemdemtOn').val(),
+                blocks: $('#blocks').val(),
+                activityComment: $('#activityComment').val(),
+                action: "sendAdaptiveCard"
+            };
+            taskInfo.card = "";
+            taskInfo.height = "";
+            taskInfo.width = "";
+            microsoftTeams.tasks.submitTask(taskInfo);
+            return true;
+        };
+
+    </script>
+</head>
+
+<body>
+    <div class="">
+        <div class="">
+            <div class="mb">
+                <div class="tk-no" id="taskNumber">T1234567</div>
+                <div class="input-grp">
+                    <input type="text" class="alias" id="taskCreatedBy" />
+                </div>
+                <div class="drp-down">
+                    <div class="drp-text">Status</div>
+                    <select class="cs" id="status">
+                        <option value="open" checked>Open</option>
+                        <option value="pending" checked>Pending</option>
+                        <option value="resolved" checked>Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                    <span class="sel-chev"></span>
+                </div>
+                <div class="drp-down2">
+                    <div class="drp-text">Priority</div>
+                    <select class="cs" id="priority">
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low" checked>Low</option>
+                    </select>
+                    <span class="sel-chev"></span>
+                </div>
+                <div class="form-group fg">
+                    <label for="title" class="title">Title</label>
+                    <input type="text" class="form-control" id="title">
+                </div>
+                <div class="form-group fg">
+                    <label for="title-desc" class="description">Description</label>
+                    <textarea class="form-control title-desc" id="description"></textarea>
+                </div>
+                <div class="drp-down-date">
+                    <div class="drp-text">Start date</div>
+                    <input type="date" id="startDate" class="form-control date" />
+                    <span class="datee"></span>
+                </div>
+                <div class="drp-down-date2">
+                    <div class="drp-text">End date</div>
+                    <input type="date" id="dueDate" class="form-control date" />
+                    <span class="datee"></span>
+                </div>
+                <div class="form-group">
+                    <div class="drp-text">Attachment</div>
+                    <label for="attachement" class="Attach">Add attachment</label>
+                    <input type="file" id="attachement" name="avatar" class="avatar">
+                </div>
+                @*<div class="form-group">
+                        <div class="custom-file">
+                            <label class="custom-file-label choose" for="attachement">
+                                Add Attachement
+                            </label>
+                            <input type="file" class="custom-file-input" id="attachement" name="AppBanner" />
+                        </div>
+                    </div>*@
+                <div class="form-group row">
+                    <label for="Subscribers" class="col-sm-2 sm-2 col-form-label col-form-label-sm">Subscribers</label>
+                    <div class="col-sm-10 sm-10">
+                        <span class="Subscribers-icon"></span>
+                        <input type="email" class="form-control form-control-sm" id="subscribers">
+                    </div>
+                </div>
+                <div class="form-group fg">
+                    <label for="Depends" class="Depends">Depends On</label>
+                    <input type="text" class="form-control depends-desc" id="depemdemtOn"
+                           placeholder="Type your message here">
+                </div>
+                <div class="form-group fg">
+                    <label for="Depends" class="block">Blocks</label>
+                    <input type="text" class="form-control block-desc" id="blocks" placeholder="Type your message here">
+                </div>
+                <div class="activity">
+                    <span class="activity-icon"></span>
+                    <span class="act">Activity</span>
+                    <span class="hide">Hide Details</span>
+
+                    <div class="media customMedia">
+                        <img src="https://oit.ua.edu/wp-content/uploads/2020/03/Microsoft_Teams_256x256.png"
+                             class="align-self-center letter-img" alt="img">
+                        <div class="media-body mr-2">
+                            @*<input type="text" class="form-control comment" id="block" placeholder="Write comment here...">*@
+                            <textarea class="form-control comment" id="activityComment" placeholder="Write comment here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer mf">
+                <button type="button" class="btn-send" onclick="SendAdaptiveCard()">Save Task</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

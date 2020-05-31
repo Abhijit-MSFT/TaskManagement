@@ -1,0 +1,92 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.5",
+  "version": "1.0.0",
+  "id": "",
+  "packageName": "com.contoso.TaskManagement",
+  "developer": {
+    "name": "Contoso",
+    "websiteUrl": "https://www.microsoft.com",
+    "privacyUrl": "https://www.microsoft.com/privacy",
+    "termsOfUseUrl": "https://www.microsoft.com/termsofuse"
+  },
+  "name": {
+    "short": "-Task Management Local-",
+    "full": "Task Management App"
+  },
+  "description": {
+    "short": "Communication",
+    "full": "Place to create and maintain your tasks."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "logo.png"
+  },
+  "accentColor": "#60A18E",
+  "staticTabs": [
+    {
+      "entityId": "myTasks",
+      "name": "My Tasks",
+      "contentUrl": "https://b5ab8c10.ngrok.io/Index",
+      "websiteUrl": "https://b5ab8c10.ngrok.io/Index",
+      "scopes": [
+        "personal"
+      ]
+    }
+  ],
+  "bots": [
+    {
+      "botId": "",
+      "scopes": [
+        "personal",
+        "team",
+        "groupchat"
+      ]
+    }
+  ],
+  "composeExtensions": [
+    {
+      "botId": "",
+      "canUpdateConfiguration": false,
+      "commands": [
+        {
+          "id": "recurringreflections",
+          "description": "Manage recurring posts",
+          "title": "Manage recurring posts",
+          "type": "action",
+          "initialRun": false,
+          "context": [ "message" ],
+          "fetchTask": true,
+          "parameters": [
+            {
+              "name": "Name",
+              "title": "Title",
+              "description": "To Do Title"
+            }
+          ]
+        },
+        {
+          "id": "creatatask",
+          "description": "Creat new task",
+          "title": "Create a task",
+          "type": "action",
+          "initialRun": false,
+          "context": [ "message" ],
+          "fetchTask": true,
+          "parameters": [
+            {
+              "name": "Name",
+              "title": "Title",
+              "description": "To Do Title"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [ "*.ngrok.io" ]
+}
