@@ -170,7 +170,7 @@ namespace TaskManagement.Helper
                                         Color = taskInfo.blocks == null ? AdaptiveTextColor.Default : AdaptiveTextColor.Attention
                                     }
                                 },
-                                Width = "auto"
+                                Width = "stretch"
                             },
                             new AdaptiveColumn()
                             {
