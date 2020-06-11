@@ -1,4 +1,6 @@
-﻿@{
+﻿@model TaskManagement.Model.TaskInfo
+
+@{
     Layout = "";
 }
 
@@ -34,7 +36,30 @@
         });
 
         function SendAdaptiveCard() {
-            var file = document.getElementById("attachement").files[0];
+            debugger;
+            var isValid = true;
+            $('#title,#description,#startDate,#dueDate,#taskAssignedTo').each(function () {
+                if ($.trim($(this).val()) == '') {
+                    isValid = false;
+                    $(this).css({
+                        "border": "1px solid red"
+                    });
+                }
+                else {
+                    $(this).css({
+                        "border": "",
+                        "background": ""
+                    });
+                }
+
+            });
+            if (isValid == false) {
+                debugger;
+                e.preventDefault();
+                return false;
+            }
+
+
             let taskInfo = {
                 taskNumber: $('#taskNumber').val(),
                 taskAssignedTo: $('#taskAssignedTo').val(),
@@ -44,16 +69,14 @@
                 description: $('#description').val(),
                 startDate: $('#startDate').val(),
                 dueDate: $('#dueDate').val(),
-                //attachement: $('#attachement')[0].files[0],
-                attachement: $('#attachement').val(),
-                //attachement: file,
+                //attachement: $('#attachement').val(),
                 subscribers: $('#subscribers').val(),
                 dependentOn: $('#depemdemtOn').val(),
                 blocks: $('#blocks').val(),
                 activityComment: $('#activityComment').val(),
                 action: "sendAdaptiveCard"
             };
-            debugger
+            debugger;
             taskInfo.card = "";
             taskInfo.height = "";
             taskInfo.width = "";
@@ -74,50 +97,49 @@
                     @*    <input type="text" class="alias" id="taskAssignedTo" required />*@
                 </div>
                 <div class="drp-down">
-                    <select class="cs" id="taskAssignedTo">
-                        <option value="">Assign To</option>
-                        <option value="Gousia Begum">Gousia Begum</option>
-                        <option value="Trinetra Kumar">Trinetra Kumar</option>
-                        <option value="Subhasish Pani">Subhasish Pani</option>
-                        <option value="Abhijit Jodbhavi">Abhijit Jodbhavi</option>
-                    </select>
+
+                    @Html.DropDownListFor(x => Model.taskAssignedTo, new SelectList(Model.assignedToList, "Value", "Text"), htmlAttributes: new { @class = "cs", @id = "taskAssignedTo" })
                     <span class="sel-chev"></span>
                 </div>
                 <div class="drp-down">
                     <div class="drp-text">Status</div>
-                    <select class="cs" id="status">
-                        <option value="open" checked>Open</option>
-                        <option value="pending">Pending</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
-                    </select>
+
+                    @Html.DropDownListFor(x => Model.status, new SelectList(Model.statusList, "Value", "Text"), htmlAttributes: new { @class = "cs", @id = "status" })
+
                     <span class="sel-chev"></span>
                 </div>
                 <div class="drp-down2">
                     <div class="drp-text">Priority</div>
-                    <select class="cs" id="priority">
-                        <option value="low" checked>Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                    </select>
+
+                    @Html.DropDownListFor(x => Model.priority, new SelectList(Model.priorityList, "Value", "Text"), htmlAttributes: new { @class = "cs", @id = "priority" })
                     <span class="sel-chev"></span>
                 </div>
                 <div class="form-group fg">
                     <label for="title" class="title">Title</label>
-                    <input type="text" class="form-control" id="title" maxlength="30">
+                    @Html.TextBoxFor(model => model.title, htmlAttributes: new { @class = "form-control", @id = "title", maxlength = "30" })
+
+                    @*<input type="text" class="form-control" id="title" maxlength="30" value="@Model.title">*@
                 </div>
                 <div class="form-group fg">
                     <label for="title-desc" class="description">Description</label>
-                    <textarea class="form-control title-desc" id="description" required>@ViewBag.description</textarea>
+                    @Html.TextAreaFor(model => model.description, htmlAttributes: new { @class = "form-control title-desc", @id = "description" })
+                    @Html.ValidationMessageFor(model => model.title)
+                    @*<textarea class="form-control title-desc" id="description" required>@Model.description</textarea>*@
                 </div>
                 <div class="drp-down-date">
                     <div class="drp-text">Start date</div>
-                    <input type="date" id="startDate" class="form-control date" />
+                    @Html.EditorFor(model => model.startDate, "", new { @type = "date", @class = "date", id = "startDate" })
+                    @Html.ValidationMessageFor(model => model.startDate)
+
+                    @*<input type="date" id="startDate" class="form-control date" value="@Model.startDate" />*@
                     <span class="datee"></span>
                 </div>
                 <div class="drp-down-date2">
-                    <div class="drp-text">End date</div>
-                    <input type="date" id="dueDate" class="form-control date" />
+                    <div class="drp-text">Due date</div>
+                    @Html.EditorFor(model => model.dueDate, "", new { @type = "date", @class = "date", id = "dueDate" })
+                    @Html.ValidationMessageFor(model => model.dueDate)
+
+                    @*<input type="date" id="dueDate" class="form-control date" value="@Model.dueDate" />*@
                     <span class="datee"></span>
                 </div>
                 <div class="form-group">
@@ -126,43 +148,50 @@
                     <input type="file" id="attachement" name="attachement">
                 </div>
                 <div class="form-group row">
-                    <label for="Subscribers" class="col-sm-2 sm-2 col-form-label col-form-label-sm">Subscribers</label>
 
                     <div class="col-sm-10 sm-10">
                         @*<span class="Subscribers-icon"></span>*@
-                        <select class="selectpicker" multiple data-live-search="true" id="subscribers">
-                            <option value="Gousia Begum">Gousia Begum</option>
-                            <option value="Trinetra Kumar">Trinetra Kumar</option>
-                            <option value="Subhasish Pani">Subhasish Pani</option>
-                            <option value="Abhijit Jodbhavi">Abhijit Jodbhavi</option>
-                        </select>                    
+                        <label for="Subscribers" class="col-sm-2 sm-2 col-form-label col-form-label-sm">Subscribers</label>
+
+                        @Html.ListBoxFor(x => Model.subscribers, new MultiSelectList(Model.subscribersList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "subscribers", multiple = "multiple" })
+
+                        @*<select class="selectpicker" multiple data-live-search="true" id="subscribers">
+                                <option value="Gousia Begum">Gousia Begum</option>
+                                <option value="Trinetra Kumar">Trinetra Kumar</option>
+                                <option value="Subhasish Pani">Subhasish Pani</option>
+                                <option value="Abhijit Jodbhavi">Abhijit Jodbhavi</option>
+                            </select>*@
                     </div>
                 </div>
                 <div class="form-group fg">
                     <label for="Depends" class="Depends">Depends On</label>
-                    <select class="selectpicker" multiple data-live-search="true" id="depemdemtOn">
-                        <option value="T1233">T1233</option>
-                        <option value="T1234">T1234</option>
-                        <option value="T1235">T1235</option>
-                        <option value="T1236">T1236</option>
-                        <option value="T1237">T1237</option>
-                        <option value="T1238">T1238</option>
-                        <option value="T1239">T1239</option>
+                    @Html.ListBoxFor(x => Model.dependentOn, new MultiSelectList(Model.dependentOnList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "depemdemtOn", multiple = "multiple" })
 
-                    </select>
+                    @*<select class="selectpicker" multiple data-live-search="true" id="depemdemtOn">
+                            <option value="T1233">T1233</option>
+                            <option value="T1234">T1234</option>
+                            <option value="T1235">T1235</option>
+                            <option value="T1236">T1236</option>
+                            <option value="T1237">T1237</option>
+                            <option value="T1238">T1238</option>
+                            <option value="T1239">T1239</option>
+
+                        </select>*@
                 </div>
                 <div class="form-group fg">
                     <label for="Depends" class="block">Blocks</label>
-                    <select class="selectpicker" multiple data-live-search="true" id="blocks">
-                        <option value="T1233">T1233</option>
-                        <option value="T1234">T1234</option>
-                        <option value="T1235">T1235</option>
-                        <option value="T1236">T1236</option>
-                        <option value="T1237">T1237</option>
-                        <option value="T1238">T1238</option>
-                        <option value="T1239">T1239</option>
+                    @Html.ListBoxFor(x => Model.blocks, new MultiSelectList(Model.blocksList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "blocks", multiple = "multiple" })
 
-                    </select>
+                    @*<select class="selectpicker" multiple data-live-search="true" id="blocks">
+                            <option value="T1233">T1233</option>
+                            <option value="T1234">T1234</option>
+                            <option value="T1235">T1235</option>
+                            <option value="T1236">T1236</option>
+                            <option value="T1237">T1237</option>
+                            <option value="T1238">T1238</option>
+                            <option value="T1239">T1239</option>
+
+                        </select>*@
                 </div>
                 <div class="activity">
                     <span class="activity-icon"></span>
@@ -177,6 +206,19 @@
                             <textarea class="form-control comment" id="activityComment" placeholder="Write comment here..."></textarea>
                         </div>
                     </div>
+                    @if (Model.activity != null && Model.activity.Count > 0)
+                    {
+                        @for (int count = 0; count < Model.activity.Count; count++)
+                        {
+                            <div class="media customMedia">
+                                <div class="media-body mr-2">
+                                    @*<input type="text" class="form-control comment" id="block" placeholder="Write comment here...">*@
+                                    <textarea class="form-control comment" id="oldactivityComment-@count" placeholder="Write comment here...">@Model.activity[count].ActivityCreatedBy : @Model.activity[count].ActivityCreatedTime &#13;&#10; @Model.activity[count].Comments
+                                </textarea>
+                                </div>
+                            </div>
+                        }
+                    }
                 </div>
             </div>
             <div class="modal-footer mf">
