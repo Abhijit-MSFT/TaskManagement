@@ -26,9 +26,12 @@ namespace TaskManagement.Helper
             TaskDataRepository taskDataRepository = new TaskDataRepository(configuration);
             if(taskInfo != null)
             {
-                taskInfo.taskID = Guid.NewGuid();
-                taskInfo.attachementID = Guid.NewGuid();
-                taskInfo.subscriberID= Guid.NewGuid();
+                if (taskInfo.action != "updateAdaptiveCard")
+                {
+                    taskInfo.taskID = Guid.NewGuid();
+                    taskInfo.attachementID = Guid.NewGuid();
+                    taskInfo.subscriberID = Guid.NewGuid();
+                }
                 
                 var rowKey = Guid.NewGuid();
 
