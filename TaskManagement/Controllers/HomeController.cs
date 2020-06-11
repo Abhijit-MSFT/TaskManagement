@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Bot.Builder;
 using Microsoft.Extensions.Configuration;
 using TaskManagement.Helper;
@@ -15,7 +16,7 @@ using TaskManagement.Repositories.TaskSubscribersData;
 
 namespace TaskManagement.Controllers
 {
-    
+
     public class HomeController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -47,7 +48,20 @@ namespace TaskManagement.Controllers
             string taskId = common.GetNewTaskID();
             ViewBag.newTaskID = taskId;
             ViewBag.description = titleFromPayload;
-            return View(pageLoadData);
+            var taskList = (await DBHelper.GetPageLoadDataAsync(_configuration)).ListofTaskIDs;
+            TaskInfo taskInfo = new TaskInfo
+            {
+                assignedToList = this.GetListOfUser(),
+                statusList = this.GetStatusList(),
+                priorityList = this.GetPriorityList(),
+                description = titleFromPayload,
+                startDate = DateTime.Today,
+                dueDate = DateTime.Today,
+                subscribersList = this.GetListOfUser(),
+                dependentOnList = this.GetTaskListSelectItems(taskList),
+                blocksList = this.GetTaskListSelectItems(taskList),
+            };
+            return View(taskInfo);
         }
 
         [Route("editTask/{taskId}")]
@@ -60,38 +74,80 @@ namespace TaskManagement.Controllers
             TaskDataEntity taskdataEntity = await taskDataRepository.GetTaskDetailsByTaskIDAsync(taskId);
             TaskAttachementsEntity taskAttachementsEntity = await taskAttachementsRepository.GetTaskAttachementDetailsByTaskIDAsync(taskId);
             List<TaskActivityEntity> taskActivityEntity = await taskActivityRepository.GetTaskActivityDetailsByTaskIDAsync(taskId);
-
+            var sortedActivityList = taskActivityEntity.OrderByDescending(x => x.Timestamp).ToList();
+            var taskList = (await DBHelper.GetPageLoadDataAsync(_configuration)).ListofTaskIDs;
             TaskInfo taskInfo = new TaskInfo
             {
+                taskID = taskId,
                 taskNumber = taskdataEntity.TaskName,
                 taskAssignedTo = taskdataEntity.TaskAssignedTo,
+                assignedToList = this.GetListOfUser(),
                 status = taskdataEntity.TaskStatus,
+                statusList = this.GetStatusList(),
                 priority = taskdataEntity.TaskPriority,
+                priorityList = this.GetPriorityList(),
                 title = taskdataEntity.TaskTitle,
                 description = taskdataEntity.TaskDescription,
                 startDate = taskdataEntity.TaskStartDate,
                 dueDate = taskdataEntity.TaskDueDate,
                 attachementURL = taskAttachementsEntity.AttachementURL,
                 subscribers = taskdataEntity.Subscribers.ToList(),
+                subscribersList = this.GetListOfUser(),
                 dependentOn = taskdataEntity.Dependencies.ToList(),
+                dependentOnList = this.GetTaskListSelectItems(taskList),
                 blocks = taskdataEntity.Blocks.ToList(),
-                activity = taskActivityEntity
+                blocksList = this.GetTaskListSelectItems(taskList),
+                activity = sortedActivityList,
             };
-            
             return View(taskInfo);
         }
 
+        private IEnumerable<SelectListItem> GetTaskListSelectItems(List<string> taskList)
+        {
+            var list = new List<SelectListItem>();
+            foreach (var taskid in taskList)
+            {
+                list.Add(new SelectListItem() { Value = taskid, Text = taskid });
+            }
+            return list;
+        }
 
+        private IEnumerable<SelectListItem> GetPriorityList()
+        {
+            return new List<SelectListItem>()
+            {
+               new SelectListItem(){Value = "low", Text ="Low" },
+               new SelectListItem(){Value = "medium", Text ="Medium" },
+               new SelectListItem(){Value = "high", Text ="High" },
+            };
+        }
 
-        
+        private IEnumerable<SelectListItem> GetStatusList()
+        {
+            return new List<SelectListItem>()
+            {
+               new SelectListItem(){Value = "open", Text ="Open" },
+               new SelectListItem(){Value = "pending", Text ="pending" },
+               new SelectListItem(){Value = "resolved", Text ="Resolved" },
+               new SelectListItem(){Value = "closed", Text ="Closed" },
+            };
+        }
+
+        private IEnumerable<SelectListItem> GetListOfUser()
+        {
+            return new List<SelectListItem>()
+            {
+               new SelectListItem(){Value = "Abhijit Jodbhavi", Text ="Abhijit Jodbhavi" },
+               new SelectListItem(){Value = "Gousia Begum", Text ="Gousia Begum" },
+               new SelectListItem(){Value = "Trinetra Kumar", Text ="Trinetra Kumar" },
+               new SelectListItem(){Value =  "Subhasish Pani", Text = "Subhasish Pani" }
+            };
+        }
 
         [Route("configure")]
         public ActionResult Configure()
         {
             return View();
         }
-    
-       
-
     }
 }

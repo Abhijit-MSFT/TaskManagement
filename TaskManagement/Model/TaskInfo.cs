@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TaskManagement.Repositories.TaskActivityData;
 
@@ -10,20 +12,36 @@ namespace TaskManagement.Model
     public class TaskInfo
     {
         public Guid taskID { get; set; }
-        public string taskName{ get; set; }
+        public string taskName { get; set; }
+
         public string title { get; set; }
         public string taskNumber { get; set; }
         public string taskCreatedBy { get; set; }
         public string taskCreatedByEmail { get; set; }
         public string taskAssignedTo { get; set; }
+        public IEnumerable<SelectListItem> assignedToList { get; set; }
+
         public List<string>? subscribers { get; set; }
+        public IEnumerable<SelectListItem> subscribersList { get; set; }
+
         public string status { get; set; }
+        public IEnumerable<SelectListItem> statusList { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime startDate { get; set; }
         public string priority { get; set; }
+        public IEnumerable<SelectListItem> priorityList { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime dueDate { get; set; }
         public string description { get; set; }
         public List<string>? dependentOn { get; set; }
+        public IEnumerable<SelectListItem> dependentOnList { get; set; }
         public List<string>? blocks { get; set; }
+        public IEnumerable<SelectListItem> blocksList { get; set; }
+
         public string messageID { get; set; }
         public string? attachement { get; set; }
         [NotMapped]
@@ -34,8 +52,8 @@ namespace TaskManagement.Model
         public string action { get; set; }
         public string type { get; set; }
         public Guid attachementID { get; set; }
-        public Guid subscriberID { get; set; }        
-        
+        public Guid subscriberID { get; set; }
+
     }
 
 
