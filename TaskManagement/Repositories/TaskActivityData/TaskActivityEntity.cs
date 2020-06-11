@@ -8,13 +8,12 @@ namespace TaskManagement.Repositories.TaskActivityData
 {
     public class TaskActivityEntity : TableEntity
     {
-        public Guid TaskActivityID { get; set; }
         public Guid TaskID { get; set; }
-        public string ActivityCreatedBy { get; set; }
-        public string ActivityCreatedByEmail { get; set; }
-        public string ActivityCreatedDate { get; set; }
-        public string ActivityCreatedTime { get; set; }
-        public string Comments { get; set; }
+        public string? ActivityCreatedBy { get; set; }
+        public string? ActivityCreatedByEmail { get; set; }
+        public string? ActivityCreatedDate { get; set; }
+        public string? ActivityCreatedTime { get; set; }
+        public string? Comments { get; set; }
     }
 }
 

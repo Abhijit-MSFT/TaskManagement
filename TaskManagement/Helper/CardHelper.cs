@@ -1,5 +1,5 @@
 ﻿using AdaptiveCards;
-using Microsoft.Bot.Schema.Teams;
+using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using TaskManagement.Model;
@@ -10,9 +10,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace TaskManagement.Helper
-{    
+{
     public class CardHelper
     {
         private readonly IConfiguration _configuration;
@@ -20,8 +21,8 @@ namespace TaskManagement.Helper
         {
             _configuration = configuration;
         }
-         
-        public AdaptiveCard  TaskInformationCard()
+
+        public AdaptiveCard TaskInformationCard(TaskInfo taskInfo)
         {
             var Card = new AdaptiveCard(new AdaptiveSchemaVersion("1.0"))
             {
@@ -37,13 +38,13 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = "T12345: install security cameras in building 1",
+                                        Text = taskInfo.taskNumber + " : " + (taskInfo.title.Length > 30 ? taskInfo.title.Substring(0, 30) : taskInfo.title),
                                         Weight = AdaptiveTextWeight.Bolder,
                                         Size = AdaptiveTextSize.Large,
                                         Wrap = true
                                     }
                                 },
-                                Width = "stretch",
+                                Width = "auto",
                             },
                             new AdaptiveColumn()
                             {
@@ -51,10 +52,10 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveImage()
                                     {
-                                        Url = new Uri(_configuration["BaseUri"] + "/Images/high.png")
+                                        Url = new Uri(_configuration["BaseUri"] + "/Images/" + taskInfo.priority + ".png")
                                     }
                                 },
-                                Width = "auto"
+                                Width = "stretch"
                             }
                         }
                     },
@@ -71,7 +72,8 @@ namespace TaskManagement.Helper
                                         Text ="Owner:",
                                         Size = AdaptiveTextSize.Medium
                                     }
-                                }
+                                },
+                                 Width = "auto"
                             },
                             new AdaptiveColumn()
                             {
@@ -79,7 +81,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text ="",
+                                        Text = taskInfo.taskAssignedTo,
                                     }
                                 }
                             }
@@ -101,34 +103,17 @@ namespace TaskManagement.Helper
                                 },
                                 Width = "auto"
                             },
-                            new AdaptiveColumn()
+                             new AdaptiveColumn()
                             {
                                 Items = new List<AdaptiveElement>()
                                 {
-                                     new AdaptiveChoiceSetInput()
+                                    new AdaptiveTextBlock()
                                     {
-                                        Choices =
-                                        {
-                                            new AdaptiveChoice()
-                                            {
-                                                Title = "Not started"
-                                            },
-                                            new AdaptiveChoice()
-                                            {
-                                                Title = "In Progress"
-                                            },
-                                            new AdaptiveChoice()
-                                            {
-                                                Title = "Blocked"
-                                            },
-                                            new AdaptiveChoice()
-                                            {
-                                                Title = "Complete"
-                                            }
-                                        },
+                                        Text = taskInfo.status,
                                     }
                                 }
                             }
+
                         }
                     },
                     new AdaptiveColumnSet()
@@ -142,11 +127,20 @@ namespace TaskManagement.Helper
                                     new AdaptiveTextBlock()
                                     {
                                         Text ="Depends on:",
-                                        Size = AdaptiveTextSize.Medium,
-                                        Color = AdaptiveTextColor.Accent
+                                        Size = AdaptiveTextSize.Medium,                                        
                                     }
                                 },
-                                Width = "stretch"
+                                Width = "auto"
+                            },
+                             new AdaptiveColumn()
+                            {
+                                Items = new List<AdaptiveElement>()
+                                {
+                                    new AdaptiveTextBlock()
+                                    {
+                                        Text = string.Join(", ", taskInfo.dependentOn),
+                                    }
+                                }
                             },
                             new AdaptiveColumn()
                             {
@@ -154,7 +148,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveImage()
                                     {
-                                        Url = new Uri(_configuration["BaseUri"] + "/Images/Plus.png")
+                                        Url = new Uri(_configuration["BaseUri"] + "/Images/AddDep.png")
                                     }
                                 },
                                 Width = "auto"
@@ -173,10 +167,20 @@ namespace TaskManagement.Helper
                                     {
                                         Text ="Blocks:",
                                         Size = AdaptiveTextSize.Medium,
-                                        Color = AdaptiveTextColor.Attention
+                                        Color = taskInfo.blocks == null ? AdaptiveTextColor.Default : AdaptiveTextColor.Attention
                                     }
                                 },
-                                Width = "stretch"
+                                Width = "auto"
+                            },
+                            new AdaptiveColumn()
+                            {
+                                Items = new List<AdaptiveElement>()
+                                {
+                                    new AdaptiveTextBlock()
+                                    {
+                                        Text = string.Join(", ", taskInfo.blocks)
+                                    }
+                                }
                             },
                             new AdaptiveColumn()
                             {
@@ -184,7 +188,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveImage()
                                     {
-                                        Url = new Uri(_configuration["BaseUri"] + "/Images/Plus.png")
+                                        Url = new Uri(_configuration["BaseUri"] + "/Images/AddDep.png")
                                     }
                                 },
                                 Width = "auto"
@@ -194,20 +198,27 @@ namespace TaskManagement.Helper
                 },
                 Actions = new List<AdaptiveAction>()
                 {
-                    new AdaptiveSubmitAction()
+                   new AdaptiveSubmitAction()
                     {
-                        Title = "View Details"
-                    }
+                        Type = "Action.Submit",
+                        Title = "View Details",
+                        DataJson=@"{'type':'task/fetch','taskInfoo':'" + taskInfo.taskID +"' }",
+                        Data =
+                        new TaskModuleActionHelper.AdaptiveCardValue<TaskModuleActionDetails>()
+                        {
+                            Data = new TaskModuleActionDetails()
+                            {
+                                type ="task/fetch",
+                                URL =_configuration["BaseUri"] + "/EditTask/" + taskInfo.taskID
+                            }
+                        }
+                    },
                 }
             };
 
             return Card;
-            //return new Attachment()
-            //{
-            //    ContentType = AdaptiveCard.ContentType,
-            //    Content = Card
-            //};
         }
+
 
     }
 }

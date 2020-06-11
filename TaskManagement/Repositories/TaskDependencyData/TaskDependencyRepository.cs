@@ -21,5 +21,12 @@ namespace TaskManagement.Repositories.TaskDependencyData
                 isFromAzureFunction)
         {
         }
+
+        public async Task<TaskDependencyEntity> GetTaskDependencyDetailsByTaskIDAsync(Guid taskId)
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDependencyDataTable.TableName);
+            TaskDependencyEntity taskDependencyEntity = allRows.Where(c => c.TaskID == taskId).FirstOrDefault();
+            return taskDependencyEntity;
+        }
     }
 }

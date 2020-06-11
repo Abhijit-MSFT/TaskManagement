@@ -10,7 +10,7 @@ namespace TaskManagement.Repositories.TaskDependencyData
     {
         public Guid TaskDependencyID { get; set; }
         public Guid TaskID { get; set; }
-        public string DependentTaskID { get; set; } //change it to guid - currently string is sent from the frontend
-        public string DependentTaskOwner { get; set; }        
+        public string? DependentTaskID { get; set; } //change it to guid - currently string is sent from the frontend
+        public string? DependentTaskOwner { get; set; }        
     }
 }

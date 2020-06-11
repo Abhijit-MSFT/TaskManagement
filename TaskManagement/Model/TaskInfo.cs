@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-
+using System.ComponentModel.DataAnnotations.Schema;
+using TaskManagement.Repositories.TaskActivityData;
 
 namespace TaskManagement.Model
 {
@@ -15,23 +16,26 @@ namespace TaskManagement.Model
         public string taskCreatedBy { get; set; }
         public string taskCreatedByEmail { get; set; }
         public string taskAssignedTo { get; set; }
-        public string subscribers { get; set; }
+        public List<string>? subscribers { get; set; }
         public string status { get; set; }
         public DateTime startDate { get; set; }
         public string priority { get; set; }
         public DateTime dueDate { get; set; }
         public string description { get; set; }
-        public string depemdemtOn { get; set; }
-        public string blocks { get; set; }
+        public List<string>? dependentOn { get; set; }
+        public List<string>? blocks { get; set; }
         public string messageID { get; set; }
-        public string attachementURL { get; set; }
+        public string? attachement { get; set; }
+        [NotMapped]
+        public IFormFile? attachements { get; set; }
+        public string? attachementURL { get; set; }
+        public List<TaskActivityEntity>? activity { get; set; }
         public string activityComment { get; set; }
         public string action { get; set; }
         public string type { get; set; }
         public Guid attachementID { get; set; }
-        public Guid subscriberID { get; set; }
-        public Guid dependencyID { get; set; }
-        public Guid taskActivityID { get; set; }
+        public Guid subscriberID { get; set; }        
+        
     }
 
 
@@ -52,7 +56,7 @@ namespace TaskManagement.Model
         public string messageid { get; set; }
     }
 
-    public class ReflctionData
+    public class TaskData
     {
         public Data data { get; set; }
     }

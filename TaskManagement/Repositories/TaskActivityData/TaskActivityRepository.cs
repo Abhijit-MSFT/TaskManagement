@@ -21,5 +21,12 @@ namespace TaskManagement.Repositories.TaskActivityData
                 isFromAzureFunction)
         {
         }
+
+        public async Task<List<TaskActivityEntity>> GetTaskActivityDetailsByTaskIDAsync(Guid taskId)
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskActivityDataTable.TableName);
+            List<TaskActivityEntity> taskActivityEntity = allRows.Where(c => c.TaskID == taskId).ToList();
+            return taskActivityEntity;
+        }
     }
 }

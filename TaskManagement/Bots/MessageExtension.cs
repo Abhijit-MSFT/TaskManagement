@@ -34,24 +34,38 @@ namespace TaskManagement
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)        
         {
-            return null;
-        }
 
-        protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionSubmitActionAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
+            TaskData reldata = JsonConvert.DeserializeObject<TaskData>(taskModuleRequest.Data.ToString());           
+
+            return new TaskModuleResponse
+            {
+                Task = new TaskModuleContinueResponse
+                {
+                    Value = new TaskModuleTaskInfo()
+                    {
+                        Height = 620,
+                        Width = 800,
+                        Title = "Edit task",
+                        Url = reldata.data.URL
+                    },
+                },
+            };
+        }
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            TaskInfo taskInfo = new TaskInfo();
+            TaskInfo taskInfo;
             try
             {
-                taskInfo = JsonConvert.DeserializeObject<TaskInfo>(action.Data.ToString());
+                taskInfo = JsonConvert.DeserializeObject<TaskInfo>(taskModuleRequest.Data.ToString());
             }
             catch (Exception e)
             {
-
                 throw;
             }
+
             switch (taskInfo.action)
             {
-                case "sendAdaptiveCard" :
+                case "updateAdaptiveCard":
                     try
                     {
                         var name = (turnContext.Activity.From.Name).Split();
@@ -60,10 +74,60 @@ namespace TaskManagement
                         await DBHelper.SaveTaskInfo(taskInfo, _configuration);
 
                         CardHelper cardhelper = new CardHelper(_configuration);
-                        //var typingActivity = MessageFactory.Text(string.Empty);
-                        //typingActivity.Type = ActivityTypes.Typing;
-                        //await turnContext.SendActivityAsync(typingActivity);
-                        var adaptiveCard = cardhelper.TaskInformationCard();
+                        var typingActivity = MessageFactory.Text(string.Empty);
+                        typingActivity.Type = ActivityTypes.Typing;
+                        await turnContext.SendActivityAsync(typingActivity);
+                        var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
+                        var message = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
+                        await turnContext.SendActivityAsync(message, cancellationToken);
+
+                        //var newActivity = MessageFactory.Text("The new text for the activity");
+                        //message.Id = turnContext.Activity.ReplyToId;
+                        //await turnContext.UpdateActivityAsync(message, cancellationToken);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        throw;
+                    }
+                    return null;
+                default:
+                    return null;
+            }
+        }
+
+
+        protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionSubmitActionAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
+        {            
+            TaskInfo taskInfo;
+            try
+            {
+                taskInfo = JsonConvert.DeserializeObject<TaskInfo>(action.Data.ToString());
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+
+            switch (taskInfo.action)
+            {
+                case "sendAdaptiveCard" :
+                    try
+                    {                        
+                        var name = (turnContext.Activity.From.Name).Split();
+                        taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
+                        taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
+                        CardHelper cardhelper = new CardHelper(_configuration);
+                        //BlobStorageHelper blobStorageHelper = new BlobStorageHelper(_configuration);
+                        var attPath = taskInfo.attachements;
+                        //string attUrl = await blobStorageHelper.GetFilePath(attPath);
+                        //taskInfo.attachementURL = await blobStorageHelper.GetImageUrl(attUrl);
+                        await DBHelper.SaveTaskInfo(taskInfo, _configuration);
+                        var typingActivity = MessageFactory.Text(string.Empty);
+                        typingActivity.Type = ActivityTypes.Typing;
+                        await turnContext.SendActivityAsync(typingActivity);                        
+                        var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
                         var message = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
                         await turnContext.SendActivityAsync(message, cancellationToken);
                     }
@@ -72,23 +136,15 @@ namespace TaskManagement
 
                         throw;
                     }
-                   
-
-
                     return null;
                 default:
                     return null;
             }
-            
-
-            return null;
         }
 
         protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionFetchTaskAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
         {
             var TaskDesFromPayload = action.MessagePayload.Body.Content;
-
-
 
             var response = new MessagingExtensionActionResponse()
             {
@@ -99,8 +155,8 @@ namespace TaskManagement
                         Height = 620,
                         Width = 800,
                         //Title = "Invite people to share how they feel",
-                        Url = this._configuration["BaseUri"] + "/CreateNewTask"
-        },
+                        Url = this._configuration["BaseUri"] + "/CreateNewTask/" + TaskDesFromPayload
+                    },
                 },
             };
 

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaskManagement.Repositories;
+using System.Runtime.CompilerServices;
 
 namespace TaskManagement.Helper
 {
@@ -28,15 +29,14 @@ namespace TaskManagement.Helper
                 taskInfo.taskID = Guid.NewGuid();
                 taskInfo.attachementID = Guid.NewGuid();
                 taskInfo.subscriberID= Guid.NewGuid();
-                taskInfo.dependencyID = Guid.NewGuid();
-                taskInfo.taskActivityID = Guid.NewGuid();
+                
                 var rowKey = Guid.NewGuid();
 
                 TaskDataEntity taskDataEntity = new TaskDataEntity
                 {
                     PartitionKey = PartitionKeyNames.TaskDetailsDataTable.TaskDataPartition,
                     RowKey = rowKey.ToString(),
-                    TaskName = "T1234567", // change it to auto crated taskName
+                    TaskName = taskInfo.taskNumber, // change it to auto crated taskName
                     TaskId = taskInfo.taskID,
                     TaskCreatedBy = taskInfo.taskCreatedBy,
                     TaskAssignedTo = taskInfo.taskAssignedTo,
@@ -48,17 +48,16 @@ namespace TaskManagement.Helper
                     TaskStartDate = taskInfo.startDate,
                     TaskDueDate = taskInfo.dueDate,
                     AttachementID = taskInfo.attachementID,
-                    SubscriberID = taskInfo.subscriberID,
-                    DependencyID = taskInfo.dependencyID,
-                    Blocks = taskInfo.blocks,
-                    TaskActivityID = taskInfo.taskActivityID,
+                    Subscribers = taskInfo.subscribers,
+                    Dependencies = taskInfo.dependentOn,
+                    Blocks = taskInfo.blocks                    
                 };
                 await taskDataRepository.CreateOrUpdateAsync(taskDataEntity);
 
                 //check required conditions before pushing data to below tables
                 await DBHelper.SaveTaskAttachements(taskInfo, configuration);
-                await DBHelper.SaveSubscribersInfo(taskInfo, configuration);
-                await DBHelper.SaveDependency(taskInfo, configuration);
+                //await DBHelper.SaveSubscribersInfo(taskInfo, configuration);
+                //await DBHelper.SaveDependency(taskInfo, configuration);
                 await DBHelper.SaveActivity(taskInfo, configuration);
 
             };
@@ -102,22 +101,22 @@ namespace TaskManagement.Helper
             await taskSubscriberRepository.CreateOrUpdateAsync(taskSubscriberEntity);
         }
 
-        public static async Task SaveDependency(TaskInfo taskInfo, IConfiguration configuration)
-        {
-            TaskDependencyRepository taskDependencyRepository = new TaskDependencyRepository(configuration);
-            var rowKey = Guid.NewGuid();
+        //public static async Task SaveDependency(TaskInfo taskInfo, IConfiguration configuration)
+        //{
+        //    TaskDependencyRepository taskDependencyRepository = new TaskDependencyRepository(configuration);
+        //    var rowKey = Guid.NewGuid();
 
-            TaskDependencyEntity taskDependencyEntity = new TaskDependencyEntity
-            {
-                PartitionKey = PartitionKeyNames.TaskDependencyDataTable.TaskDependencyDataPartition,
-                RowKey = rowKey.ToString(),
-                TaskDependencyID = taskInfo.dependencyID,
-                TaskID = taskInfo.taskID,
-                DependentTaskID = taskInfo.depemdemtOn
-            };
+        //    TaskDependencyEntity taskDependencyEntity = new TaskDependencyEntity
+        //    {
+        //        PartitionKey = PartitionKeyNames.TaskDependencyDataTable.TaskDependencyDataPartition,
+        //        RowKey = rowKey.ToString(),
+        //        TaskDependencyID = taskInfo.dependencyID,
+        //        TaskID = taskInfo.taskID,
+        //        DependentTaskID = taskInfo.dependentOn
+        //    };
 
-            await taskDependencyRepository.CreateOrUpdateAsync(taskDependencyEntity);
-        }
+        //    await taskDependencyRepository.CreateOrUpdateAsync(taskDependencyEntity);
+        //}
 
         public static async Task SaveActivity(TaskInfo taskInfo, IConfiguration configuration)
         {
@@ -128,7 +127,6 @@ namespace TaskManagement.Helper
             {
                 PartitionKey = PartitionKeyNames.TaskActivityDataTable.TaskActivityDataPartition,
                 RowKey = rowKey.ToString(),
-                TaskActivityID = taskInfo.taskActivityID,
                 TaskID = taskInfo.taskID,
                 ActivityCreatedBy = taskInfo.taskCreatedBy,
                 ActivityCreatedByEmail = taskInfo.taskCreatedByEmail,
@@ -155,6 +153,23 @@ namespace TaskManagement.Helper
             }
         }
 
+        public static async Task<List<string>> GetTeamMembers(ITurnContext turnContext) 
+        {            
+            try
+            {
+                IConnectorClient connector = turnContext.TurnState.Get<IConnectorClient>();
+                var members = await connector.Conversations.GetConversationMembersAsync(turnContext.Activity.Conversation.Id);
+                var mamberNames = members.Select(c => c.Name).ToList();
+                return mamberNames;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
+
         private static IEnumerable<TeamsChannelAccount> AsTeamsChannelAccounts(IEnumerable<ChannelAccount> channelAccountList)
         {
             foreach (ChannelAccount channelAccount in channelAccountList)
@@ -163,7 +178,18 @@ namespace TaskManagement.Helper
             }
         }
 
-
+        public static async Task<PageLoadData> GetPageLoadDataAsync(IConfiguration configuration)
+        {
+            Common common = new Common(configuration);
+            TaskDataRepository taskDataRepository = new TaskDataRepository(configuration);
+            PageLoadData pageLoadData = new PageLoadData
+            {
+                NewTaskId = common.GetNewTaskID(),
+                ListofTaskIDs = await taskDataRepository.GetAllTaskTDAsync(),
+                //TeamMembers = await DBHelper.GetTeamMembers(turnContext)
+            };
+            return pageLoadData;
+        }
     }
 }
 

@@ -10,7 +10,7 @@ namespace TaskManagement.Repositories.TaskSubscribersData
     {
         public Guid TaskSubscriberID { get; set; }
         public Guid TaskID { get; set; }
-        public string SubscriberName { get; set; }
-        public string SubscriberEmail { get; set; }
+        public List<string>? SubscriberName { get; set; }
+        public string? SubscriberEmail { get; set; }
     }
 }

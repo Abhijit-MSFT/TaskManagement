@@ -21,5 +21,12 @@ namespace TaskManagement.Repositories.TaskAttachementsData
                 isFromAzureFunction)
         {
         }
+
+        public async Task<TaskAttachementsEntity> GetTaskAttachementDetailsByTaskIDAsync(Guid taskId)
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskAttachementsDataTable.TableName);
+            TaskAttachementsEntity taskAttachementsEntity = allRows.Where(c => c.TaskID == taskId).FirstOrDefault();
+            return taskAttachementsEntity;
+        }
     }
 }

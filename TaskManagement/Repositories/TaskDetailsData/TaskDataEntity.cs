@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Azure.Cosmos.Table;
-
+using Newtonsoft.Json;
 
 namespace TaskManagement.Repositories.TaskDetailsData
 {
@@ -18,9 +19,64 @@ namespace TaskManagement.Repositories.TaskDetailsData
         public DateTime TaskStartDate { get; set; }
         public DateTime TaskDueDate { get; set; }
         public Guid AttachementID { get; set; }
-        public Guid SubscriberID { get; set; }
-        public Guid DependencyID { get; set; }
-        public string Blocks { get; set; }
-        public Guid TaskActivityID { get; set; }
+        
+
+        public string SubscribersString { get; set; }
+
+        /// <summary>
+        /// Gets or sets Rosters audience collection.
+        /// </summary>
+        [IgnoreProperty]
+        public IEnumerable<string> Subscribers
+        {
+            get
+            {
+                return JsonConvert.DeserializeObject<IEnumerable<string>>(this.SubscribersString);
+            }
+
+            set
+            {
+                this.SubscribersString = JsonConvert.SerializeObject(value);
+            }
+        }
+
+        public string DependencyString { get; set; }
+
+        /// <summary>
+        /// Gets or sets Rosters audience collection.
+        /// </summary>
+        [IgnoreProperty]
+        public IEnumerable<string> Dependencies
+        {
+            get
+            {
+                return JsonConvert.DeserializeObject<IEnumerable<string>>(this.DependencyString);
+            }
+
+            set
+            {
+                this.DependencyString = JsonConvert.SerializeObject(value);
+            }
+        }
+
+        public string BlocksString { get; set; }
+
+        /// <summary>
+        /// Gets or sets Rosters audience collection.
+        /// </summary>
+        [IgnoreProperty]
+        public IEnumerable<string> Blocks
+        {
+            get
+            {
+                return JsonConvert.DeserializeObject<IEnumerable<string>>(this.BlocksString);
+            }
+
+            set
+            {
+                this.BlocksString = JsonConvert.SerializeObject(value);
+            }
+        }
+
     }
 }

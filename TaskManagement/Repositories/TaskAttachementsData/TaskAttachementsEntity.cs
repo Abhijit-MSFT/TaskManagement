@@ -10,6 +10,6 @@ namespace TaskManagement.Repositories.TaskAttachementsData
     {
         public Guid AttachementID { get; set; }
         public Guid TaskID { get; set; }
-        public string AttachementURL { get; set; }
+        public string? AttachementURL { get; set; }
     }
 }

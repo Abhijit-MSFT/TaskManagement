@@ -1,4 +1,6 @@
-﻿@{
+﻿@model TaskManagement.Model.TaskInfo
+
+@{
     Layout = "";
 }
 
@@ -33,8 +35,7 @@
             }
         });
 
-        function SendAdaptiveCard() {
-            var file = document.getElementById("attachement").files[0];
+        function UpdateAdaptiveCard() {
             let taskInfo = {
                 taskNumber: $('#taskNumber').val(),
                 taskAssignedTo: $('#taskAssignedTo').val(),
@@ -44,9 +45,7 @@
                 description: $('#description').val(),
                 startDate: $('#startDate').val(),
                 dueDate: $('#dueDate').val(),
-                //attachement: $('#attachement')[0].files[0],
                 attachement: $('#attachement').val(),
-                //attachement: file,
                 subscribers: $('#subscribers').val(),
                 dependentOn: $('#depemdemtOn').val(),
                 blocks: $('#blocks').val(),
@@ -69,7 +68,7 @@
         <div class="">
             <div class="mb">
                 @*<div class="tk-no" id="taskNumber">@ViewBag.newTaskID</div>*@
-                <input type="text" class="tk-no" id="taskNumber" value="@ViewBag.newTaskID" disabled>
+                <input type="text" class="tk-no" id="taskNumber" value="@Model.taskNumber" disabled>
                 <div class="input-grp">
                     @*    <input type="text" class="alias" id="taskAssignedTo" required />*@
                 </div>
@@ -104,11 +103,11 @@
                 </div>
                 <div class="form-group fg">
                     <label for="title" class="title">Title</label>
-                    <input type="text" class="form-control" id="title" maxlength="30">
+                    <input type="text" class="form-control" id="title" maxlength="30" value="@Model.title">
                 </div>
                 <div class="form-group fg">
                     <label for="title-desc" class="description">Description</label>
-                    <textarea class="form-control title-desc" id="description" required>@ViewBag.description</textarea>
+                    <textarea class="form-control title-desc" id="description" required>@Model.description</textarea>
                 </div>
                 <div class="drp-down-date">
                     <div class="drp-text">Start date</div>
@@ -135,7 +134,7 @@
                             <option value="Trinetra Kumar">Trinetra Kumar</option>
                             <option value="Subhasish Pani">Subhasish Pani</option>
                             <option value="Abhijit Jodbhavi">Abhijit Jodbhavi</option>
-                        </select>                    
+                        </select>
                     </div>
                 </div>
                 <div class="form-group fg">
@@ -177,10 +176,16 @@
                             <textarea class="form-control comment" id="activityComment" placeholder="Write comment here..."></textarea>
                         </div>
                     </div>
+                    <div class="media customMedia">
+                        <div class="media-body mr-2">
+                            @*<input type="text" class="form-control comment" id="block" placeholder="Write comment here...">*@
+                            <textarea class="form-control comment" id="oldactivityComment" placeholder="Write comment here...">@Model.taskAssignedTo : @Model.startDate &#13;&#10; @Model.activity.FirstOrDefault().Comments</textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer mf">
-                <button type="button" class="btn-send" onclick="return SendAdaptiveCard()">Save Task</button>
+                <button type="button" class="btn-send" onclick="return UpdateAdaptiveCard()">Save Task</button>
             </div>
         </div>
     </div>

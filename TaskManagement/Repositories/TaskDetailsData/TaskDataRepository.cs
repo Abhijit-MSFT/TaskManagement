@@ -21,5 +21,26 @@ namespace TaskManagement.Repositories.TaskDetailsData
                 isFromAzureFunction)
         {
         }
+
+        public async Task<string> GetLastCreatedTaskID()
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+            string LastCreatedTaskID = allRows.OrderByDescending(c => c.TaskName).FirstOrDefault().ToString();
+            return LastCreatedTaskID;
+        }
+
+        public async Task<TaskDataEntity> GetTaskDetailsByTaskIDAsync(Guid taskId)
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+            TaskDataEntity taskDataEntity = allRows.Where(c => c.TaskId == taskId).FirstOrDefault();
+            return taskDataEntity;
+        }
+
+        public async Task<List<string>> GetAllTaskTDAsync()
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+            List<string> allIds = allRows.Select(c=>c.TaskName).ToList();
+            return allIds;
+        }
     }
 }

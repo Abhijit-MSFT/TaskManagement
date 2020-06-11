@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
   "manifestVersion": "1.5",
   "version": "1.0.0",
-  "id": "",
+  "id": "255238d5-ee6f-4efb-9b70-0882127e08aa",
   "packageName": "com.contoso.TaskManagement",
   "developer": {
     "name": "Contoso",
@@ -11,7 +11,7 @@
     "termsOfUseUrl": "https://www.microsoft.com/termsofuse"
   },
   "name": {
-    "short": "-Task Management Local-",
+    "short": "Task-Manager",
     "full": "Task Management App"
   },
   "description": {
@@ -27,8 +27,8 @@
     {
       "entityId": "myTasks",
       "name": "My Tasks",
-      "contentUrl": "https://b5ab8c10.ngrok.io/Index",
-      "websiteUrl": "https://b5ab8c10.ngrok.io/Index",
+      "contentUrl": "https://6d4352b77d41.ngrok.io/Index",
+      "websiteUrl": "https://6d4352b77d41.ngrok.io/Index",
       "scopes": [
         "personal"
       ]
@@ -36,7 +36,7 @@
   ],
   "bots": [
     {
-      "botId": "",
+      "botId": "255238d5-ee6f-4efb-9b70-0882127e08aa",
       "scopes": [
         "personal",
         "team",
@@ -46,25 +46,9 @@
   ],
   "composeExtensions": [
     {
-      "botId": "",
+      "botId": "255238d5-ee6f-4efb-9b70-0882127e08aa",
       "canUpdateConfiguration": false,
       "commands": [
-        {
-          "id": "recurringreflections",
-          "description": "Manage recurring posts",
-          "title": "Manage recurring posts",
-          "type": "action",
-          "initialRun": false,
-          "context": [ "message" ],
-          "fetchTask": true,
-          "parameters": [
-            {
-              "name": "Name",
-              "title": "Title",
-              "description": "To Do Title"
-            }
-          ]
-        },
         {
           "id": "creatatask",
           "description": "Creat new task",
