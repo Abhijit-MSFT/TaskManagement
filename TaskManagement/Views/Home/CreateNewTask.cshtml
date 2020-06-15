@@ -59,6 +59,8 @@
                 return false;
             }
 
+            var action = '@ViewBag.action';
+            var parentTaskName = '@ViewBag.parentTaskName';
 
             let taskInfo = {
                 taskNumber: $('#taskNumber').val(),
@@ -74,7 +76,8 @@
                 dependentOn: $('#depemdemtOn').val(),
                 blocks: $('#blocks').val(),
                 activityComment: $('#activityComment').val(),
-                action: "sendAdaptiveCard"
+                action: action == '' ? "sendAdaptiveCard" : action,
+                parentId: action == '' ? '' : parentTaskName
             };
             debugger;
             taskInfo.card = "";

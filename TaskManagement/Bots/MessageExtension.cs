@@ -18,7 +18,7 @@ using TaskManagement.Repositories.TaskDetailsData;
 namespace TaskManagement
 {
     //TaskManagement
-    public class MessageExtension : TeamsActivityHandler 
+    public class MessageExtension : TeamsActivityHandler
     {
         private readonly IConfiguration _configuration;
 
@@ -33,10 +33,23 @@ namespace TaskManagement
 
         }
 
-        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)        
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
 
-            TaskData reldata = JsonConvert.DeserializeObject<TaskData>(taskModuleRequest.Data.ToString());           
+            TaskData reldata = JsonConvert.DeserializeObject<TaskData>(taskModuleRequest.Data.ToString());
+            var taskTitle = "Edit task";
+            if (!string.IsNullOrEmpty(reldata.data.CreateType))
+            {
+                taskTitle = "Create task";
+                if (reldata.data.CreateType == "Depends on")
+                {
+                    reldata.data.URL += $" ?&createType=Depends on&parentTaskId={reldata.data.TaskId}";
+                }
+                else
+                {
+                    reldata.data.URL += $" ?&createType=Blocks&parentTaskId={reldata.data.TaskId}";
+                }
+            }
 
             return new TaskModuleResponse
             {
@@ -46,7 +59,7 @@ namespace TaskManagement
                     {
                         Height = 620,
                         Width = 800,
-                        Title = "Edit task",
+                        Title = taskTitle,
                         Url = reldata.data.URL
                     },
                 },
@@ -66,6 +79,8 @@ namespace TaskManagement
 
             switch (taskInfo.action)
             {
+                case "Depends on":
+                case "Blocks":                
                 case "updateAdaptiveCard":
                     try
                     {
@@ -81,6 +96,11 @@ namespace TaskManagement
                         var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
                         var message = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
                         await turnContext.SendActivityAsync(message, cancellationToken);
+
+                        if (string.IsNullOrEmpty(taskInfo.ParentTaskName))
+                        { 
+                        
+                        }
 
                         //var newActivity = MessageFactory.Text("The new text for the activity");
                         //message.Id = turnContext.Activity.ReplyToId;
@@ -100,7 +120,7 @@ namespace TaskManagement
 
 
         protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionSubmitActionAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
-        {            
+        {
             TaskInfo taskInfo;
             try
             {
@@ -113,24 +133,20 @@ namespace TaskManagement
 
             switch (taskInfo.action)
             {
-                case "sendAdaptiveCard" :
+                case "sendAdaptiveCard":
                     try
-                    {                        
+                    {
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
                         TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
-                        //List<string> TaskIdsAndTitles = await taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
                         taskInfo.akkTaskIDs = await taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
                         CardHelper cardhelper = new CardHelper(_configuration);
-                        //BlobStorageHelper blobStorageHelper = new BlobStorageHelper(_configuration);
                         var attPath = taskInfo.attachements;
-                        //string attUrl = await blobStorageHelper.GetFilePath(attPath);
-                        //taskInfo.attachementURL = await blobStorageHelper.GetImageUrl(attUrl);
                         await DBHelper.SaveTaskInfo(taskInfo, _configuration);
                         var typingActivity = MessageFactory.Text(string.Empty);
                         typingActivity.Type = ActivityTypes.Typing;
-                        await turnContext.SendActivityAsync(typingActivity);                        
+                        await turnContext.SendActivityAsync(typingActivity);
                         var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
                         var message = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
                         await turnContext.SendActivityAsync(message, cancellationToken);

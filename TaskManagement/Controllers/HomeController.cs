@@ -40,24 +40,66 @@ namespace TaskManagement.Controllers
 
         //[Route("createNewTask/{turnContext}")]
         [Route("createNewTask/{titleFromPayload}")]
-        public async Task<ActionResult> CreateNewTask(string titleFromPayload)
+        public async Task<ActionResult> CreateNewTask(string titleFromPayload, string createType, string parentTaskId)
         {
 
             PageLoadData pageLoadData = await DBHelper.GetPageLoadDataAsync(_configuration);
             Common common = new Common(_configuration);
-            string taskId = common.GetNewTaskID();
-            ViewBag.newTaskID = taskId;
-            ViewBag.description = titleFromPayload;
+            string newTaskId = common.GetNewTaskID();
+            ViewBag.newTaskID = newTaskId;
+
+
             var taskList = (await DBHelper.GetPageLoadDataAsync(_configuration)).ListofTaskIDs;
             TaskInfo taskInfo = new TaskInfo
             {
                 assignedToList = this.GetListOfUser(),
                 statusList = this.GetStatusList(),
                 priorityList = this.GetPriorityList(),
-                description = titleFromPayload,
+                description = titleFromPayload ?? "",
                 startDate = DateTime.Today,
                 dueDate = DateTime.Today,
-                subscribersList = this.GetListOfUser(),                
+                subscribersList = this.GetListOfUser(),
+                dependentOnList = this.GetTaskListSelectItems(taskList),
+                blocksList = this.GetTaskListSelectItems(taskList),
+            };
+
+            if (createType == "Depends on")
+            {
+                taskInfo.dependentOn = new List<string>() { parentTaskId };
+                ViewBag.action = createType;
+                ViewBag.parentTaskName = parentTaskId;
+
+            }
+
+            if (createType == "Blocks")
+            {
+                taskInfo.blocks = new List<string>() { parentTaskId };
+                ViewBag.action = createType;
+                ViewBag.parentTaskName = parentTaskId;
+            }
+
+            return View(taskInfo);
+        }
+
+        [Route("createNewTask/{createType}/{taskId}")]
+        public async Task<ActionResult> CreateNewTaskFromOld(string createType, string taskId)
+        {
+
+            PageLoadData pageLoadData = await DBHelper.GetPageLoadDataAsync(_configuration);
+            Common common = new Common(_configuration);
+            string newTaskId = common.GetNewTaskID();
+            ViewBag.newTaskID = newTaskId;
+            ViewBag.description = "";
+            var taskList = (await DBHelper.GetPageLoadDataAsync(_configuration)).ListofTaskIDs;
+            TaskInfo taskInfo = new TaskInfo
+            {
+                assignedToList = this.GetListOfUser(),
+                statusList = this.GetStatusList(),
+                priorityList = this.GetPriorityList(),
+                description = "",
+                startDate = DateTime.Today,
+                dueDate = DateTime.Today,
+                subscribersList = this.GetListOfUser(),
                 dependentOnList = this.GetTaskListSelectItems(taskList),
                 blocksList = this.GetTaskListSelectItems(taskList),
             };

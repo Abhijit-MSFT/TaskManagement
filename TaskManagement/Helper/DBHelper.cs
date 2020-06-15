@@ -24,11 +24,11 @@ namespace TaskManagement.Helper
         public static async Task SaveTaskInfo(TaskInfo taskInfo, IConfiguration configuration)
         {
             TaskDataRepository taskDataRepository = new TaskDataRepository(configuration);
-            if(taskInfo != null)
+            if (taskInfo != null)
             {
                 var rowKey = Guid.NewGuid();
 
-                if (taskInfo.action == "sendAdaptiveCard")
+                if (taskInfo.action == "sendAdaptiveCard" || taskInfo.action == "Depeneds on" || taskInfo.action == "Blocks")
                 {
                     taskInfo.taskID = Guid.NewGuid();
                     taskInfo.attachementID = Guid.NewGuid();
@@ -82,7 +82,7 @@ namespace TaskManagement.Helper
                 await DBHelper.SaveActivity(taskInfo, configuration);
 
             };
-            
+
         }
 
 
@@ -174,8 +174,8 @@ namespace TaskManagement.Helper
             }
         }
 
-        public static async Task<List<string>> GetTeamMembers(ITurnContext turnContext) 
-        {            
+        public static async Task<List<string>> GetTeamMembers(ITurnContext turnContext)
+        {
             try
             {
                 IConnectorClient connector = turnContext.TurnState.Get<IConnectorClient>();
