@@ -149,7 +149,24 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveImage()
                                     {
-                                        Url = new Uri(_configuration["BaseUri"] + "/Images/AddDep.png")
+                                        Url = new Uri(_configuration["BaseUri"] + "/Images/AddDep.png"),
+                                        SelectAction = new AdaptiveSubmitAction()
+                                        {
+                                            Type = "Action.Submit",
+                                            Title = "Depends On",
+                                            DataJson=@"{'type':'task/fetch','taskId':'" + taskInfo.taskID +"'}",
+                                            Data =
+                                            new TaskModuleActionHelper.AdaptiveCardValue<TaskModuleActionDetails>()
+                                            {
+                                                Data = new TaskModuleActionDetails()
+                                                {
+                                                    type ="task/fetch",
+                                                    URL =_configuration["BaseUri"] + "/createNewTask/",
+                                                    CreateType ="Depends on",
+                                                    TaskId = taskInfo.taskNumber,
+                                                }
+                                            }
+                                        },
                                     }
                                 },
                                 Width = "auto"
@@ -189,7 +206,25 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveImage()
                                     {
-                                        Url = new Uri(_configuration["BaseUri"] + "/Images/AddDep.png")
+                                        Url = new Uri(_configuration["BaseUri"] + "/Images/AddDep.png"),
+                                        SelectAction = new AdaptiveSubmitAction()
+                                        {
+                                            Type = "Action.Submit",
+                                            Title = "Depends On",
+                                            DataJson=@"{'type':'task/fetch','taskId':'" + taskInfo.taskID +"'}",
+                                            Data =
+                                            new TaskModuleActionHelper.AdaptiveCardValue<TaskModuleActionDetails>()
+                                            {
+                                                Data = new TaskModuleActionDetails()
+                                                {
+                                                    type ="task/fetch",
+                                                    URL =_configuration["BaseUri"] + "/createNewTask/",
+                                                    CreateType ="Blocks",
+                                                    TaskId = taskInfo.taskNumber,
+                                                }
+                                            }
+                                        },
+
                                     }
                                 },
                                 Width = "auto"
@@ -203,7 +238,7 @@ namespace TaskManagement.Helper
                     {
                         Type = "Action.Submit",
                         Title = "View Details",
-                        DataJson=@"{'type':'task/fetch','taskInfoo':'" + taskInfo.taskID +"' }",
+                        DataJson=@"{'type':'task/fetch','taskId':'" + taskInfo.taskID +"' }",
                         Data =
                         new TaskModuleActionHelper.AdaptiveCardValue<TaskModuleActionDetails>()
                         {

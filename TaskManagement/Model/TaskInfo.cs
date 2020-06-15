@@ -53,6 +53,7 @@ namespace TaskManagement.Model
         public string type { get; set; }
         public Guid attachementID { get; set; }
         public Guid subscriberID { get; set; }
+        public string ParentTaskName { get; set; }
 
     }
 
@@ -83,6 +84,9 @@ namespace TaskManagement.Model
     {
         public string URL { get; set; }
         public string type { get; set; }
+        public string CreateType { get; set; }
+        public string TaskId { get; set; }
+
     }
 
 
@@ -102,6 +106,9 @@ namespace TaskManagement.Model
     {
         public string type { get; set; }
         public string ActionType { get; set; }
+        public string CreateType { get; set; }
+        public string TaskId { get; set; }
+
     }
     public class TaskModuleActionDetails : ActionDetails
     {
