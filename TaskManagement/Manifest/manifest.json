@@ -50,20 +50,39 @@
       "canUpdateConfiguration": false,
       "commands": [
         {
+          "id": "MyTasks",
+          "description": "Task details",
+          "title": "My Tasks",
+          "initialRun": true,
+          "parameters": [
+            {
+              "title": "query",
+              "name": "taskTitle",
+              "description": "Search tasks"
+            }
+          ]
+        },
+        {
+          "id": "SubscribedTasks",
+          "description": "Subscribed task details",
+          "title": "Subscribed Tasks",
+          "initialRun": true,
+          "parameters": [
+            {
+              "title": "query",
+              "name": "taskTitle",
+              "description": "Search subscribed tasks"
+            }
+          ]
+        },
+        {
           "id": "creatatask",
           "description": "Creat new task",
           "title": "Create a task",
           "type": "action",
           "initialRun": false,
           "context": [ "message" ],
-          "fetchTask": true,
-          "parameters": [
-            {
-              "name": "Name",
-              "title": "Title",
-              "description": "To Do Title"
-            }
-          ]
+          "fetchTask": true
         }
       ]
     }

@@ -57,7 +57,7 @@ namespace TaskManagement.Controllers
                 description = titleFromPayload,
                 startDate = DateTime.Today,
                 dueDate = DateTime.Today,
-                subscribersList = this.GetListOfUser(),
+                subscribersList = this.GetListOfUser(),                
                 dependentOnList = this.GetTaskListSelectItems(taskList),
                 blocksList = this.GetTaskListSelectItems(taskList),
             };
@@ -94,6 +94,7 @@ namespace TaskManagement.Controllers
                 subscribers = taskdataEntity.Subscribers.ToList(),
                 subscribersList = this.GetListOfUser(),
                 dependentOn = taskdataEntity.Dependencies.ToList(),
+                //ListOfDependsOnAndBlocks = this.GetTaskListSelectItems(taskList),
                 dependentOnList = this.GetTaskListSelectItems(taskList),
                 blocks = taskdataEntity.Blocks.ToList(),
                 blocksList = this.GetTaskListSelectItems(taskList),
@@ -102,12 +103,12 @@ namespace TaskManagement.Controllers
             return View(taskInfo);
         }
 
-        private IEnumerable<SelectListItem> GetTaskListSelectItems(List<string> taskList)
+        private IEnumerable<SelectListItem> GetTaskListSelectItems(Dictionary<string, string> taskList)
         {
             var list = new List<SelectListItem>();
-            foreach (var taskid in taskList)
+            foreach (var keyValue in taskList)
             {
-                list.Add(new SelectListItem() { Value = taskid, Text = taskid });
+                list.Add(new SelectListItem() { Value = keyValue.Key, Text = keyValue.Key + " - " + keyValue.Value });
             }
             return list;
         }

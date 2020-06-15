@@ -11,6 +11,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
+using TaskManagement.Repositories.TaskDetailsData;
 
 namespace TaskManagement.Helper
 {
@@ -127,7 +128,7 @@ namespace TaskManagement.Helper
                                     new AdaptiveTextBlock()
                                     {
                                         Text ="Depends on:",
-                                        Size = AdaptiveTextSize.Medium,                                        
+                                        Size = AdaptiveTextSize.Medium,
                                     }
                                 },
                                 Width = "auto"
@@ -138,7 +139,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = string.Join(", ", taskInfo.dependentOn),
+                                        Text = taskInfo.akkTaskIDs == null ? " " : string.Join(", ", taskInfo.akkTaskIDs),
                                     }
                                 }
                             },
@@ -170,7 +171,7 @@ namespace TaskManagement.Helper
                                         Color = taskInfo.blocks == null ? AdaptiveTextColor.Default : AdaptiveTextColor.Attention
                                     }
                                 },
-                                Width = "stretch"
+                                Width = "auto"
                             },
                             new AdaptiveColumn()
                             {

@@ -36,11 +36,19 @@ namespace TaskManagement.Repositories.TaskDetailsData
             return taskDataEntity;
         }
 
-        public async Task<List<string>> GetAllTaskTDAsync()
+        public async Task<Dictionary<string, string>> GetAllTaskTDAsync()
         {
             var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
-            List<string> allIds = allRows.Select(c=>c.TaskName).ToList();
-            return allIds;
+            Dictionary<string, string> allIdsandTitles = allRows.ToDictionary(x => x.TaskName, y => y.TaskTitle);        
+            return allIdsandTitles;
+        }
+
+        public async Task<List<string>> GetAllTaskIDsAndTitles(List<string> ids)
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+            List<TaskDataEntity> filteredRows = allRows.Where(c => ids.Contains(c.TaskName)).ToList();
+            List<string> IdsAndTitles = filteredRows.Select(x => x.TaskName + ": " + x.TaskTitle).ToList();
+            return IdsAndTitles;
         }
     }
 }

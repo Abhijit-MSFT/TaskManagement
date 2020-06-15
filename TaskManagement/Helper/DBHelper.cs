@@ -26,36 +26,54 @@ namespace TaskManagement.Helper
             TaskDataRepository taskDataRepository = new TaskDataRepository(configuration);
             if(taskInfo != null)
             {
-                if (taskInfo.action != "updateAdaptiveCard")
+                var rowKey = Guid.NewGuid();
+
+                if (taskInfo.action == "sendAdaptiveCard")
                 {
                     taskInfo.taskID = Guid.NewGuid();
                     taskInfo.attachementID = Guid.NewGuid();
                     taskInfo.subscriberID = Guid.NewGuid();
-                }
-                
-                var rowKey = Guid.NewGuid();
 
-                TaskDataEntity taskDataEntity = new TaskDataEntity
+                    TaskDataEntity taskDataEntity = new TaskDataEntity
+                    {
+                        PartitionKey = PartitionKeyNames.TaskDetailsDataTable.TaskDataPartition,
+                        RowKey = rowKey.ToString(),
+                        TaskName = taskInfo.taskNumber, // change it to auto crated taskName
+                        TaskId = taskInfo.taskID,
+                        TaskCreatedBy = taskInfo.taskCreatedBy,
+                        TaskAssignedTo = taskInfo.taskAssignedTo,
+                        TaskCreatedByEmail = taskInfo.taskCreatedByEmail,
+                        TaskStatus = taskInfo.status,
+                        TaskPriority = taskInfo.priority,
+                        TaskTitle = taskInfo.title,
+                        TaskDescription = taskInfo.description,
+                        TaskStartDate = taskInfo.startDate,
+                        TaskDueDate = taskInfo.dueDate,
+                        AttachementID = taskInfo.attachementID,
+                        Subscribers = taskInfo.subscribers,
+                        Dependencies = taskInfo.dependentOn,
+                        Blocks = taskInfo.blocks
+                    };
+
+                    await taskDataRepository.CreateOrUpdateAsync(taskDataEntity);
+                }
+                else if (taskInfo.action == "updateAdaptiveCard")
                 {
-                    PartitionKey = PartitionKeyNames.TaskDetailsDataTable.TaskDataPartition,
-                    RowKey = rowKey.ToString(),
-                    TaskName = taskInfo.taskNumber, // change it to auto crated taskName
-                    TaskId = taskInfo.taskID,
-                    TaskCreatedBy = taskInfo.taskCreatedBy,
-                    TaskAssignedTo = taskInfo.taskAssignedTo,
-                    TaskCreatedByEmail = taskInfo.taskCreatedByEmail,
-                    TaskStatus = taskInfo.status,
-                    TaskPriority = taskInfo.priority,
-                    TaskTitle = taskInfo.title,
-                    TaskDescription = taskInfo.description,
-                    TaskStartDate = taskInfo.startDate,
-                    TaskDueDate = taskInfo.dueDate,
-                    AttachementID = taskInfo.attachementID,
-                    Subscribers = taskInfo.subscribers,
-                    Dependencies = taskInfo.dependentOn,
-                    Blocks = taskInfo.blocks                    
-                };
-                await taskDataRepository.CreateOrUpdateAsync(taskDataEntity);
+                    TaskDataEntity taskData = await taskDataRepository.GetTaskDetailsByTaskIDAsync(taskInfo.taskID);
+
+                    taskData.TaskAssignedTo = taskInfo.taskAssignedTo;
+                    taskData.TaskStatus = taskInfo.status;
+                    taskData.TaskPriority = taskInfo.priority;
+                    taskData.TaskTitle = taskInfo.title;
+                    taskData.TaskDescription = taskInfo.description;
+                    taskData.TaskDueDate = taskInfo.dueDate;
+                    taskData.Subscribers = taskInfo.subscribers;
+                    taskData.Dependencies = taskInfo.dependentOn;
+                    taskData.Blocks = taskInfo.blocks;
+
+                    await taskDataRepository.CreateOrUpdateAsync(taskData);
+
+                }
 
                 //check required conditions before pushing data to below tables
                 await DBHelper.SaveTaskAttachements(taskInfo, configuration);
@@ -187,7 +205,7 @@ namespace TaskManagement.Helper
             TaskDataRepository taskDataRepository = new TaskDataRepository(configuration);
             PageLoadData pageLoadData = new PageLoadData
             {
-                NewTaskId = common.GetNewTaskID(),
+                //NewTaskId = common.GetNewTaskID(),
                 ListofTaskIDs = await taskDataRepository.GetAllTaskTDAsync(),
                 //TeamMembers = await DBHelper.GetTeamMembers(turnContext)
             };

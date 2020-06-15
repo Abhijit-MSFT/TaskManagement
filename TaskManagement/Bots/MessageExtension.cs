@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using TaskManagement.Model;
 using TaskManagement.Helper;
 using AdaptiveCards;
+using TaskManagement.Repositories.TaskDetailsData;
 
 namespace TaskManagement
 {
@@ -118,6 +119,9 @@ namespace TaskManagement
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
+                        TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
+                        //List<string> TaskIdsAndTitles = await taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
+                        taskInfo.akkTaskIDs = await taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
                         CardHelper cardhelper = new CardHelper(_configuration);
                         //BlobStorageHelper blobStorageHelper = new BlobStorageHelper(_configuration);
                         var attPath = taskInfo.attachements;
@@ -165,9 +169,44 @@ namespace TaskManagement
 
         protected override Task<MessagingExtensionResponse> OnTeamsMessagingExtensionQueryAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionQuery query, CancellationToken cancellationToken)
         {
-            
-            return null;
+            var text = query?.Parameters?[0]?.Value as string ?? string.Empty;
 
+            //var packages = await FindPackages(text);
+
+            //var attachments = packages.Select(package => {
+            //    var previewCard = new ThumbnailCard { Title = package.Item1, Tap = new CardAction { Type = "invoke", Value = package } };
+            //    if (!string.IsNullOrEmpty(package.Item5))
+            //    {
+            //        previewCard.Images = new List<CardImage>() { new CardImage(package.Item5, "Icon") };
+            //    }
+
+            //    var attachment = new MessagingExtensionAttachment
+            //    {
+            //        ContentType = HeroCard.ContentType,
+            //        Content = new HeroCard { Title = package.Item1 },
+            //        Preview = previewCard.ToAttachment()
+            //    };
+
+            //    return attachment;
+            //}).ToList();
+
+            //// The list of MessagingExtensionAttachments must we wrapped in a MessagingExtensionResult wrapped in a MessagingExtensionResponse.
+            //return new MessagingExtensionResponse
+            //{
+            //    ComposeExtension = new MessagingExtensionResult
+            //    {
+            //        Type = "result",
+            //        AttachmentLayout = "list",
+            //        Attachments = attachments
+            //    }
+            //};
+
+            return null;
+        }
+
+        private async Task<IEnumerable<(string, string, string, string, string)>> FindPackages(string text)
+        {
+            return null;
         }
 
         private static MessagingExtensionAttachment GetAttachment(string title)
