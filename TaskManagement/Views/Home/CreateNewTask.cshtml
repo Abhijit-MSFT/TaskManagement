@@ -100,6 +100,7 @@
                     @*    <input type="text" class="alias" id="taskAssignedTo" required />*@
                 </div>
                 <div class="drp-down">
+                    <div class="drp-text">Owner</div>
 
                     @Html.DropDownListFor(x => Model.taskAssignedTo, new SelectList(Model.assignedToList, "Value", "Text"), htmlAttributes: new { @class = "cs", @id = "taskAssignedTo" })
                     <span class="sel-chev"></span>
@@ -135,7 +136,7 @@
                     @Html.ValidationMessageFor(model => model.startDate)
 
                     @*<input type="date" id="startDate" class="form-control date" value="@Model.startDate" />*@
-                    <span class="datee"></span>
+                    @*<span class="datee"></span>*@
                 </div>
                 <div class="drp-down-date2">
                     <div class="drp-text">Due date</div>
@@ -143,18 +144,18 @@
                     @Html.ValidationMessageFor(model => model.dueDate)
 
                     @*<input type="date" id="dueDate" class="form-control date" value="@Model.dueDate" />*@
-                    <span class="datee"></span>
+                    @*<span class="datee"></span>*@
                 </div>
                 <div class="form-group">
                     @*<div class="drp-text">Attachment</div>*@
                     <label for="attachement" class="Attach">Add attachment</label>
                     <input type="file" id="attachement" name="attachement">
                 </div>
-                <div class="form-group row">
+                <div class="form-group">
 
-                    <div class="col-sm-10 sm-10">
+                    <div class="sm-10">
                         @*<span class="Subscribers-icon"></span>*@
-                        <label for="Subscribers" class="col-sm-2 sm-2 col-form-label col-form-label-sm">Subscribers</label>
+                        <label for="Subscribers" class="col-form-label col-form-label-sm subscribers">Subscribers</label>
 
                         @Html.ListBoxFor(x => Model.subscribers, new MultiSelectList(Model.subscribersList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "subscribers", multiple = "multiple" })
 
@@ -204,7 +205,7 @@
                     <div class="media customMedia">
                         <img src="https://oit.ua.edu/wp-content/uploads/2020/03/Microsoft_Teams_256x256.png"
                              class="align-self-center letter-img" alt="img">
-                        <div class="media-body mr-2">
+                        <div class="media-body mr-2 mb-2">
                             @*<input type="text" class="form-control comment" id="block" placeholder="Write comment here...">*@
                             <textarea class="form-control comment" id="activityComment" placeholder="Write comment here..."></textarea>
                         </div>
@@ -213,10 +214,10 @@
                     {
                         @for (int count = 0; count < Model.activity.Count; count++)
                         {
-                            <div class="media customMedia">
-                                <div class="media-body mr-2">
+                            <div class="media customMedia ml-3">
+                                <div class="media-body mr-2 mb-2">
                                     @*<input type="text" class="form-control comment" id="block" placeholder="Write comment here...">*@
-                                    <textarea class="form-control comment" id="oldactivityComment-@count" placeholder="Write comment here...">@Model.activity[count].ActivityCreatedBy : @Model.activity[count].ActivityCreatedTime &#13;&#10; @Model.activity[count].Comments
+                                    <textarea class="form-control comment2" id="oldactivityComment-@count" placeholder="Write comment here...">@Model.activity[count].ActivityCreatedBy : @Model.activity[count].ActivityCreatedTime &#13;&#10; @Model.activity[count].Comments
                                 </textarea>
                                 </div>
                             </div>
@@ -225,7 +226,7 @@
                 </div>
             </div>
             <div class="modal-footer mf">
-                <button type="button" class="btn-send" onclick="return SendAdaptiveCard()">Save Task</button>
+                <button type="button" class="btn-send save" onclick="return SendAdaptiveCard()">Save Task</button>
             </div>
         </div>
     </div>
