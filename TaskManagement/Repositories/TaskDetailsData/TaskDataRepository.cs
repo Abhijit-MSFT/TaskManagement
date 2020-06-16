@@ -47,7 +47,7 @@ namespace TaskManagement.Repositories.TaskDetailsData
         {
             var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
             List<TaskDataEntity> filteredRows = allRows.Where(c => ids.Contains(c.TaskName)).ToList();
-            List<string> IdsAndTitles = filteredRows.Select(x => x.TaskName + ": " + x.TaskTitle).ToList();
+            List<string> IdsAndTitles = filteredRows.Select(x => x.TaskName + " - " + x.TaskTitle).ToList();
             return IdsAndTitles;
         }
     }

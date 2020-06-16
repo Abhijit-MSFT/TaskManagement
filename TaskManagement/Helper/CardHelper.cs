@@ -127,7 +127,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text ="Depends on:",
+                                        Text ="Depends on: ",
                                         Size = AdaptiveTextSize.Medium,
                                     }
                                 },
@@ -140,6 +140,7 @@ namespace TaskManagement.Helper
                                     new AdaptiveTextBlock()
                                     {
                                         Text = taskInfo.akkTaskIDs == null ? " " : string.Join(", ", taskInfo.akkTaskIDs),
+                                        Wrap = true
                                     }
                                 }
                             },
@@ -196,7 +197,8 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = string.Join(", ", taskInfo.blocks)
+                                        Text = string.Join(", ", taskInfo.blocks),
+                                        Wrap = true
                                     }
                                 }
                             },

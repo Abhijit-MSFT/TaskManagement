@@ -87,6 +87,8 @@ namespace TaskManagement
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
+                        TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
+                        taskInfo.akkTaskIDs = await taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
                         await DBHelper.SaveTaskInfo(taskInfo, _configuration);
 
                         CardHelper cardhelper = new CardHelper(_configuration);
@@ -163,7 +165,7 @@ namespace TaskManagement
         }
 
         protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionFetchTaskAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
-        {
+         {
             var TaskDesFromPayload = action.MessagePayload.Body.Content;
 
             var response = new MessagingExtensionActionResponse()
