@@ -14,6 +14,7 @@ using TaskManagement.Model;
 using TaskManagement.Helper;
 using AdaptiveCards;
 using TaskManagement.Repositories.TaskDetailsData;
+using System.Linq;
 
 namespace TaskManagement
 {
@@ -87,6 +88,8 @@ namespace TaskManagement
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
+                        TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
+                        taskInfo.akkTaskIDs = await taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
                         await DBHelper.SaveTaskInfo(taskInfo, _configuration);
 
                         CardHelper cardhelper = new CardHelper(_configuration);
@@ -94,13 +97,14 @@ namespace TaskManagement
                         typingActivity.Type = ActivityTypes.Typing;
                         await turnContext.SendActivityAsync(typingActivity);
                         var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
-                        var message = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
-                        await turnContext.SendActivityAsync(message, cancellationToken);
-
-                        if (string.IsNullOrEmpty(taskInfo.ParentTaskName))
-                        { 
+                        var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
+                        var result = await turnContext.SendActivityAsync(reply, cancellationToken);
+                        //reply.Id = "f:8691943635866570258";
+                        //await turnContext.UpdateActivityAsync(reply, cancellationToken);
+                        //if (string.IsNullOrEmpty(taskInfo.ParentTaskName))
+                        //{ 
                         
-                        }
+                        //}
 
                         //var newActivity = MessageFactory.Text("The new text for the activity");
                         //message.Id = turnContext.Activity.ReplyToId;
@@ -148,8 +152,9 @@ namespace TaskManagement
                         typingActivity.Type = ActivityTypes.Typing;
                         await turnContext.SendActivityAsync(typingActivity);
                         var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
-                        var message = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
-                        await turnContext.SendActivityAsync(message, cancellationToken);
+                        var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
+                        await turnContext.SendActivityAsync(reply, cancellationToken);
+                        
                     }
                     catch (Exception e)
                     {
@@ -163,7 +168,7 @@ namespace TaskManagement
         }
 
         protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionFetchTaskAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
-        {
+         {
             var TaskDesFromPayload = action.MessagePayload.Body.Content;
 
             var response = new MessagingExtensionActionResponse()
@@ -183,47 +188,50 @@ namespace TaskManagement
             return response;
         }
 
-        protected override Task<MessagingExtensionResponse> OnTeamsMessagingExtensionQueryAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionQuery query, CancellationToken cancellationToken)
+        protected override async Task<MessagingExtensionResponse> OnTeamsMessagingExtensionQueryAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionQuery query, CancellationToken cancellationToken)
         {
             var text = query?.Parameters?[0]?.Value as string ?? string.Empty;
+            string useremail = "Gousia Begum";
+            TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
+            List<TaskDataEntity> userTasksData = new List<TaskDataEntity>();
+            switch (query.CommandId)
+            {                
+                case "MyTasks":            
+                    userTasksData = await taskDataRepository.GetUserTasksAsync(useremail);
+                    break;
+                case "SubscribedTasks":
+                    userTasksData = await taskDataRepository.GetUserSubscribedTasksAsync(useremail);
+                    break;
+                default:
+                    break;
+            }
 
-            //var packages = await FindPackages(text);
+            var attachments = userTasksData.Select(c => new MessagingExtensionAttachment
+            {
+                ContentType = HeroCard.ContentType,
+                Content = new HeroCard { Title = c.TaskTitle },
+                Preview = new HeroCard
+                {
+                    Title = c.TaskName + " - " + c.TaskTitle,
+                    Subtitle = "Owner - " + c.TaskAssignedTo,
+                    Text = "Status - " + c.TaskStatus,
+                    Tap = new CardAction { Type = "invoke", Value = c }
+                }.ToAttachment()
+            }).ToList();
 
-            //var attachments = packages.Select(package => {
-            //    var previewCard = new ThumbnailCard { Title = package.Item1, Tap = new CardAction { Type = "invoke", Value = package } };
-            //    if (!string.IsNullOrEmpty(package.Item5))
-            //    {
-            //        previewCard.Images = new List<CardImage>() { new CardImage(package.Item5, "Icon") };
-            //    }
 
-            //    var attachment = new MessagingExtensionAttachment
-            //    {
-            //        ContentType = HeroCard.ContentType,
-            //        Content = new HeroCard { Title = package.Item1 },
-            //        Preview = previewCard.ToAttachment()
-            //    };
 
-            //    return attachment;
-            //}).ToList();
-
-            //// The list of MessagingExtensionAttachments must we wrapped in a MessagingExtensionResult wrapped in a MessagingExtensionResponse.
-            //return new MessagingExtensionResponse
-            //{
-            //    ComposeExtension = new MessagingExtensionResult
-            //    {
-            //        Type = "result",
-            //        AttachmentLayout = "list",
-            //        Attachments = attachments
-            //    }
-            //};
-
-            return null;
-        }
-
-        private async Task<IEnumerable<(string, string, string, string, string)>> FindPackages(string text)
-        {
-            return null;
-        }
+            // The list of MessagingExtensionAttachments must we wrapped in a MessagingExtensionResult wrapped in a MessagingExtensionResponse.
+            return new MessagingExtensionResponse
+            {
+                ComposeExtension = new MessagingExtensionResult
+                {
+                    Type = "result",
+                    AttachmentLayout = "list",
+                    Attachments = attachments
+                }
+            };            
+        }      
 
         private static MessagingExtensionAttachment GetAttachment(string title)
         {

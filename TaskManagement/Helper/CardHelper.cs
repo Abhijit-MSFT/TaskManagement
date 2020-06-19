@@ -54,9 +54,11 @@ namespace TaskManagement.Helper
                                     new AdaptiveImage()
                                     {
                                         Url = new Uri(_configuration["BaseUri"] + "/Images/" + taskInfo.priority + ".png")
+
                                     }
                                 },
-                                Width = "stretch"
+                                Width = "50px",
+                                
                             }
                         }
                     },
@@ -82,7 +84,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = taskInfo.taskAssignedTo,
+                                        Text = taskInfo.taskAssignedTo                                        
                                     }
                                 }
                             }
@@ -127,7 +129,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text ="Depends on:",
+                                        Text ="Depends on: ",
                                         Size = AdaptiveTextSize.Medium,
                                     }
                                 },
@@ -140,6 +142,7 @@ namespace TaskManagement.Helper
                                     new AdaptiveTextBlock()
                                     {
                                         Text = taskInfo.akkTaskIDs == null ? " " : string.Join(", ", taskInfo.akkTaskIDs),
+                                        Wrap = true
                                     }
                                 }
                             },
@@ -196,7 +199,8 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = string.Join(", ", taskInfo.blocks)
+                                        Text = string.Join(", ", taskInfo.blocks),
+                                        Wrap = true
                                     }
                                 }
                             },

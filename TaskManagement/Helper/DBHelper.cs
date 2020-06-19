@@ -28,7 +28,7 @@ namespace TaskManagement.Helper
             {
                 var rowKey = Guid.NewGuid();
 
-                if (taskInfo.action == "sendAdaptiveCard" || taskInfo.action == "Depeneds on" || taskInfo.action == "Blocks")
+                if (taskInfo.action == "sendAdaptiveCard" || taskInfo.action == "Depends on" || taskInfo.action == "Blocks")
                 {
                     taskInfo.taskID = Guid.NewGuid();
                     taskInfo.attachementID = Guid.NewGuid();
@@ -206,7 +206,7 @@ namespace TaskManagement.Helper
             PageLoadData pageLoadData = new PageLoadData
             {
                 //NewTaskId = common.GetNewTaskID(),
-                ListofTaskIDs = await taskDataRepository.GetAllTaskTDAsync(),
+                ListofTaskIDs = await taskDataRepository.GetAllTaskIDAsync(),
                 //TeamMembers = await DBHelper.GetTeamMembers(turnContext)
             };
             return pageLoadData;

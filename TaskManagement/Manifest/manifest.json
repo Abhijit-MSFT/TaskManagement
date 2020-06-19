@@ -27,8 +27,8 @@
     {
       "entityId": "myTasks",
       "name": "My Tasks",
-      "contentUrl": "https://2696e5db6b45.ngrok.io/Index",
-      "websiteUrl": "https://2696e5db6b45.ngrok.io/Index",
+      "contentUrl": "https://2696e5db6b45.ngrok.io/",
+      "websiteUrl": "https://2696e5db6b45.ngrok.io/",
       "scopes": [
         "personal"
       ]

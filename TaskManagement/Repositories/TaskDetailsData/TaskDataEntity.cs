@@ -19,9 +19,10 @@ namespace TaskManagement.Repositories.TaskDetailsData
         public DateTime TaskStartDate { get; set; }
         public DateTime TaskDueDate { get; set; }
         public Guid AttachementID { get; set; }
-        
-
         public string SubscribersString { get; set; }
+        public string DependencyString { get; set; }
+        public string BlocksString { get; set; }
+
 
         /// <summary>
         /// Gets or sets Rosters audience collection.
@@ -40,7 +41,6 @@ namespace TaskManagement.Repositories.TaskDetailsData
             }
         }
 
-        public string DependencyString { get; set; }
 
         /// <summary>
         /// Gets or sets Rosters audience collection.
@@ -59,7 +59,6 @@ namespace TaskManagement.Repositories.TaskDetailsData
             }
         }
 
-        public string BlocksString { get; set; }
 
         /// <summary>
         /// Gets or sets Rosters audience collection.
