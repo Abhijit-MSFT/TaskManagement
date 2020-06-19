@@ -22,11 +22,14 @@ namespace TaskManagement
     public class MessageExtension : TeamsActivityHandler
     {
         private readonly IConfiguration _configuration;
+        private readonly CardHelper _cardHelper;
+        private readonly TaskDataRepository _taskDataRepository;
 
         public MessageExtension(IConfiguration configuration)
         {
             _configuration = configuration;
-
+            _cardHelper = new CardHelper(_configuration);
+            _taskDataRepository = new TaskDataRepository(_configuration);
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -81,29 +84,27 @@ namespace TaskManagement
             switch (taskInfo.action)
             {
                 case "Depends on":
-                case "Blocks":                
+                case "Blocks":
                 case "updateAdaptiveCard":
                     try
                     {
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
-                        TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
-                        taskInfo.akkTaskIDs = await taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
+                        taskInfo.akkTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
                         await DBHelper.SaveTaskInfo(taskInfo, _configuration);
 
-                        CardHelper cardhelper = new CardHelper(_configuration);
                         var typingActivity = MessageFactory.Text(string.Empty);
                         typingActivity.Type = ActivityTypes.Typing;
                         await turnContext.SendActivityAsync(typingActivity);
-                        var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
+                        var adaptiveCard = _cardHelper.TaskInformationCard(taskInfo);
                         var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
                         var result = await turnContext.SendActivityAsync(reply, cancellationToken);
                         //reply.Id = "f:8691943635866570258";
                         //await turnContext.UpdateActivityAsync(reply, cancellationToken);
                         //if (string.IsNullOrEmpty(taskInfo.ParentTaskName))
                         //{ 
-                        
+
                         //}
 
                         //var newActivity = MessageFactory.Text("The new text for the activity");
@@ -154,7 +155,7 @@ namespace TaskManagement
                         var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
                         var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
                         await turnContext.SendActivityAsync(reply, cancellationToken);
-                        
+
                     }
                     catch (Exception e)
                     {
@@ -168,7 +169,7 @@ namespace TaskManagement
         }
 
         protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionFetchTaskAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
-         {
+        {
             var TaskDesFromPayload = action.MessagePayload.Body.Content;
 
             var response = new MessagingExtensionActionResponse()
@@ -195,8 +196,8 @@ namespace TaskManagement
             TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
             List<TaskDataEntity> userTasksData = new List<TaskDataEntity>();
             switch (query.CommandId)
-            {                
-                case "MyTasks":            
+            {
+                case "MyTasks":
                     userTasksData = await taskDataRepository.GetUserTasksAsync(useremail);
                     break;
                 case "SubscribedTasks":
@@ -206,19 +207,37 @@ namespace TaskManagement
                     break;
             }
 
-            var attachments = userTasksData.Select(c => new MessagingExtensionAttachment
+            if (userTasksData.Count == 0)
             {
-                ContentType = HeroCard.ContentType,
-                Content = new HeroCard { Title = c.TaskTitle },
-                Preview = new HeroCard
+                return new MessagingExtensionResponse
                 {
-                    Title = c.TaskName + " - " + c.TaskTitle,
-                    Subtitle = "Owner - " + c.TaskAssignedTo,
-                    Text = "Status - " + c.TaskStatus,
-                    Tap = new CardAction { Type = "invoke", Value = c }
-                }.ToAttachment()
-            }).ToList();
+                    ComposeExtension = new MessagingExtensionResult
+                    {
+                        Type = "message",
+                        Text = "No match found.",
+                    },
+                };
+            }
 
+            var taskattachments = new List<MessagingExtensionAttachment>();
+            foreach (var task in userTasksData)
+            {
+                var previewCard = new ThumbnailCard
+                {
+                    Title = task.TaskName + " - " + task.TaskTitle,
+                    Text = $"Owner - {task.TaskAssignedTo}" +
+                  $" ({ task.TaskStatus})",
+                    Images = new List<CardImage>() { new CardImage { Url = _configuration["BaseUri"] + "/Images/" + task.TaskPriority + ".png" } }
+                };
+                var adaptiveCard = _cardHelper.TaskInformationCard(await CreateTaskInfoFromTaskEntity(task));
+                taskattachments.Add(new MessagingExtensionAttachment
+                {
+                    ContentType = AdaptiveCard.ContentType,
+                    Content = adaptiveCard,
+                    Preview = previewCard.ToAttachment(),
+                });
+
+            }
 
 
             // The list of MessagingExtensionAttachments must we wrapped in a MessagingExtensionResult wrapped in a MessagingExtensionResponse.
@@ -228,10 +247,26 @@ namespace TaskManagement
                 {
                     Type = "result",
                     AttachmentLayout = "list",
-                    Attachments = attachments
+                    Attachments = taskattachments
                 }
-            };            
-        }      
+            };
+        }
+
+        private async Task<TaskInfo> CreateTaskInfoFromTaskEntity(TaskDataEntity task)
+        {
+            return new TaskInfo()
+            {
+                title = task.TaskTitle,
+                priority = task.TaskPriority,
+                taskAssignedTo = task.TaskAssignedTo,
+                status = task.TaskStatus,
+                taskID = task.TaskId,
+                taskNumber = task.TaskName,
+                blocks = task.Blocks.ToList(),
+                akkTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(task.Dependencies.ToList()),
+
+            };
+        }
 
         private static MessagingExtensionAttachment GetAttachment(string title)
         {

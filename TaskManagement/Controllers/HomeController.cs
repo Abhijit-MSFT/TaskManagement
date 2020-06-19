@@ -161,9 +161,9 @@ namespace TaskManagement.Controllers
         {
             return new List<SelectListItem>()
             {
-               new SelectListItem(){Value = "low", Text ="Low" },
-               new SelectListItem(){Value = "medium", Text ="Medium" },
-               new SelectListItem(){Value = "high", Text ="High" },
+               new SelectListItem(){Value = "Low", Text ="Low" },
+               new SelectListItem(){Value = "Medium", Text ="Medium" },
+               new SelectListItem(){Value = "High", Text ="High" },
             };
         }
 
@@ -171,10 +171,10 @@ namespace TaskManagement.Controllers
         {
             return new List<SelectListItem>()
             {
-               new SelectListItem(){Value = "open", Text ="Open" },
-               new SelectListItem(){Value = "pending", Text ="pending" },
-               new SelectListItem(){Value = "resolved", Text ="Resolved" },
-               new SelectListItem(){Value = "closed", Text ="Closed" },
+               new SelectListItem(){Value = "Open", Text ="Open" },
+               new SelectListItem(){Value = "Pending", Text ="pending" },
+               new SelectListItem(){Value = "Resolved", Text ="Resolved" },
+               new SelectListItem(){Value = "Closed", Text ="Closed" },
             };
         }
 
