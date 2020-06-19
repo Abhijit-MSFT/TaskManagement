@@ -51,13 +51,24 @@ namespace TaskManagement.Helper
                             {
                                 Items= new List<AdaptiveElement>()
                                 {
+                                    new AdaptiveTextBlock()
+                                    {
+                                        Text = "",
+                                       
+                                    }
+                                },
+                            },
+                            new AdaptiveColumn()
+                            {
+                                Items= new List<AdaptiveElement>()
+                                {
                                     new AdaptiveImage()
                                     {
                                         Url = new Uri(_configuration["BaseUri"] + "/Images/" + taskInfo.priority + ".png")
 
                                     }
                                 },
-                                Width = "50px",
+                                Width = "60px",
                                 
                             }
                         }
@@ -258,7 +269,6 @@ namespace TaskManagement.Helper
 
             return Card;
         }
-
 
     }
 }
