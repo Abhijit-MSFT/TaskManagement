@@ -144,8 +144,7 @@ namespace TaskManagement
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
-                        TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
-                        taskInfo.akkTaskIDs = await taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
+                        taskInfo.akkTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
                         CardHelper cardhelper = new CardHelper(_configuration);
                         var attPath = taskInfo.attachements;
                         await DBHelper.SaveTaskInfo(taskInfo, _configuration);
@@ -191,23 +190,33 @@ namespace TaskManagement
 
         protected override async Task<MessagingExtensionResponse> OnTeamsMessagingExtensionQueryAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionQuery query, CancellationToken cancellationToken)
         {
-            var text = query?.Parameters?[0]?.Value as string ?? string.Empty;
+            var queryText = string.Empty;
+            var taskParam = query.Parameters?.FirstOrDefault(p => p.Name == "taskTitle");
+            if (taskParam != null)
+            {
+                queryText = taskParam.Value.ToString();
+            }
             string useremail = "Gousia Begum";
-            TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
             List<TaskDataEntity> userTasksData = new List<TaskDataEntity>();
             switch (query.CommandId)
             {
                 case "MyTasks":
-                    userTasksData = await taskDataRepository.GetUserTasksAsync(useremail);
+                    userTasksData = await _taskDataRepository.GetUserTasksAsync(useremail);
                     break;
                 case "SubscribedTasks":
-                    userTasksData = await taskDataRepository.GetUserSubscribedTasksAsync(useremail);
+                    userTasksData = await _taskDataRepository.GetUserSubscribedTasksAsync(useremail);
                     break;
                 default:
                     break;
             }
 
-            if (userTasksData.Count == 0)
+            var filteredTask = userTasksData;
+            if (!string.IsNullOrEmpty(queryText))
+            {
+                filteredTask = userTasksData.Where(task => task.TaskName.ToLower() == queryText.ToLower() || task.TaskTitle.ToLower() == queryText.ToLower()).ToList();
+            }
+
+            if (filteredTask.Count == 0)
             {
                 return new MessagingExtensionResponse
                 {
@@ -220,7 +229,7 @@ namespace TaskManagement
             }
 
             var taskattachments = new List<MessagingExtensionAttachment>();
-            foreach (var task in userTasksData)
+            foreach (var task in filteredTask)
             {
                 var previewCard = new ThumbnailCard
                 {

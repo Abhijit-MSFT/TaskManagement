@@ -211,21 +211,24 @@
 
                     @for (int count = 0; count < Model.activity.Count; count++)
                     {
-                        <div class="media customMedia ml-3">
-                            <div class="media-body mr-2 mb-2">
-                                @*<input type="text" class="form-control comment" id="block" placeholder="Write comment here...">*@
-                                <span class="comment2" id="oldactivityComment-@count" placeholder="Write comment here...">
-                                    @Model.activity[count].ActivityCreatedBy :
-                                </span>
-                                <span class="cm-time">
-                                     @Model.activity[count].ActivityCreatedTime
-                                </span>
-                                <br />
-                                <span class="comment3">
-                                    &#13;&#10; @Model.activity[count].Comments
-                                </span>
+                        @if (!string.IsNullOrEmpty(Model.activity[count].Comments))
+                        {
+                            <div class="media customMedia ml-3">
+                                <div class="media-body mr-2 mb-2">
+
+                                    <span class="comment2" id="oldactivityComment-@count">
+                                        @Model.activity[count].ActivityCreatedBy :
+                                    </span>
+                                    <span class="cm-time">
+                                        @Model.activity[count].ActivityCreatedTime
+                                    </span>
+                                    <br />
+                                    <span class="comment3">
+                                        &#13;&#10; @Model.activity[count].Comments
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        }
                     }
 
                 </div>
