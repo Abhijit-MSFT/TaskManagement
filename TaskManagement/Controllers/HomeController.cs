@@ -26,9 +26,11 @@ namespace TaskManagement.Controllers
         }
 
         [Route("")]
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View();
+            TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
+            List<TaskDataEntity> taskDataEntity = await taskDataRepository.GetUserTasksAsync("Gousia Begum");
+            return View(taskDataEntity);          
         }
 
 

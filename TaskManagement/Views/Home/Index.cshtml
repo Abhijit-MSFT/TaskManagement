@@ -1,1 +1,172 @@
-﻿<h2> Task Management</h2>
+﻿@model List<TaskManagement.Repositories.TaskDetailsData.TaskDataEntity>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link href="~/CSS/TaskBoard.css" rel="stylesheet" type="text/css" />    
+</head>
+<body>
+    <div class="main">
+        <!--Header section-->
+        <div class="form-inline">
+            <div class="form-row">
+                <div class="form-group">
+                    <div>
+                        <b><label class="title">Task Board</label></b>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="btn-group leftmargin" role="group">
+                        <button id="btnAdd" type="button" class="btn btn-default" data-toggle="modal">
+                            List
+                        </button>
+                        @*<button type="button" id="btnEditPreferences" class="btn btn-default" disabled>
+                                Grid
+                            </button>
+                            <button type="button" id="btnDeletePreferences" class="btn btn-default" disabled>
+                                Calander
+                            </button>*@
+                    </div>
+                </div>
+
+                @*<div class="form-group pull-right">
+                        <button type="button" class="btn btn-default btn-md">
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                    </div>
+                    <div class="form-group pull-right">
+                        <button type="button" class="btn btn-default btn-md">
+                            <span class="glyphicon glyphicon-sort"></span>
+                        </button>
+                    </div>*@
+
+                <div class="form-group pull-right drp-dwn">
+                    <div class="form-group dropdown">                       
+                            <select id="inputStatus" class="form-control">
+                                <option>Select</option>
+                                <option>Open</option>
+                                <option>Pending</option>
+                                <option>Resolved</option>
+                                <option>Closed</option>
+                            </select>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <!--End Header section-->
+        <div class="taskboard">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th class="thead"><span>Task</span> </th>
+                        <th class="thead center"><span>EndDate</span></th>
+                        <th class="thead center"><span>Progress</span></th>
+                        <th class="thead center"><span>Priority</span></th>
+                        <th class="thead center"><span>Subscribers</span></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="table-row">
+                        <td colspan="6">
+                            <button type="button" class="btn btn-default btn-sm">
+                                <span class="glyphicon glyphicon-plus"></span> Add New Task
+                            </button>
+                        </td>
+                    </tr>
+
+                    @foreach (var val in Model)
+                    {
+                        <tr></tr>
+                        <tr class="table-row">
+                            <td class="tdata">
+                                @val.TaskTitle
+                            </td>
+                            <td class="tdata center">
+                                @val.TaskDueDate.ToShortDateString()
+                            </td>
+                            @if (val.TaskStatus == "open")
+                            {
+                                <td class="tdata center">
+                                    <div>
+                                        <span class="status open"> @val.TaskStatus</span>
+                                    </div>
+                                </td>
+
+                            }
+                            @if (val.TaskStatus == "pending")
+                            {
+                                <td class="tdata center">
+                                    <div>
+                                        <span class="status pending"> @val.TaskStatus</span>
+                                    </div>
+                                </td>
+
+                            }
+                            @if (val.TaskStatus == "resolved")
+                            {
+                                <td class="tdata center">
+                                    <div>
+                                        <span class="status resolved"> @val.TaskStatus</span>
+                                    </div>
+                                </td>
+
+                            }
+                            @if (val.TaskStatus == "closed")
+                            {
+                                <td class="tdata center">
+                                    <div>
+                                        <span class="status closed"> @val.TaskStatus</span>
+                                    </div>
+                                </td>
+
+                            }
+                            @if (val.TaskPriority == "low")
+                            {
+                                <td class="tdata center">
+                                    <div>
+                                        <span class="glyphicon glyphicon-flag green"></span>
+                                    </div>
+                                </td>
+                            }
+                            @if (val.TaskPriority == "medium")
+                            {
+                                <td class="tdata center">
+                                    <div>
+                                        <span class="glyphicon glyphicon-flag blue"></span>
+                                    </div>
+                                </td>
+                            }
+                            @if (val.TaskPriority == "high")
+                            {
+                                <td class="tdata center">
+                                    <div>
+                                        <span class="glyphicon glyphicon-flag red"></span>
+                                    </div>
+                                </td>
+                            }
+
+                            <td class="tdata center">
+                                <!--Need to Add subscribers list here-->
+                            </td>
+                            <td>
+                                <div style="float:left">
+                                    <a href="#">
+                                        <span class="glyphicon glyphicon-plus-sign"></span>
+                                    </a>
+                                </div>
+                                <div style="float:right">
+                                    <a href="#">
+                                        <span class="glyphicon glyphicon-option-vertical"></span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

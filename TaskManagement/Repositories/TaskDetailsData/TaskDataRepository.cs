@@ -50,5 +50,11 @@ namespace TaskManagement.Repositories.TaskDetailsData
             List<string> IdsAndTitles = filteredRows.Select(x => x.TaskName + ": " + x.TaskTitle).ToList();
             return IdsAndTitles;
         }
+        public async Task<List<TaskDataEntity>> GetUserTasksAsync(string email)
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+            List<TaskDataEntity> userTasks = allRows.Where(c => c.TaskAssignedTo == email).ToList();
+            return userTasks;
+        }
     }
 }
