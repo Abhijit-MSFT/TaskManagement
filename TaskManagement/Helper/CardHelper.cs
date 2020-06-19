@@ -54,7 +54,6 @@ namespace TaskManagement.Helper
                                     new AdaptiveTextBlock()
                                     {
                                         Text = "",
-                                       
                                     }
                                 },
                             },
@@ -269,6 +268,5 @@ namespace TaskManagement.Helper
 
             return Card;
         }
-
     }
 }

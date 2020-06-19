@@ -207,20 +207,6 @@ namespace TaskManagement
                     break;
             }
 
-            //var attachments = userTasksData.Select(c => new MessagingExtensionAttachment
-            //{
-
-            //ContentType = HeroCard.ContentType,
-            //    Content = new HeroCard { Title = c.TaskTitle },
-            //    Preview = new HeroCard
-            //    {
-            //        Title = c.TaskName + " - " + c.TaskTitle,
-            //        Subtitle = "Owner - " + c.TaskAssignedTo,
-            //        Text = "Status - " + c.TaskStatus,
-            //        Tap = new CardAction { Type = "invoke", Value = c }
-            //    }.ToAttachment()
-            //}).ToList();
-
             if (userTasksData.Count == 0)
             {
                 return new MessagingExtensionResponse
