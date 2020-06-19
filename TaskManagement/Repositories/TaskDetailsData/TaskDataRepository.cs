@@ -8,6 +8,10 @@ namespace TaskManagement.Repositories.TaskDetailsData
 {
     public class TaskDataRepository : BaseRepository<TaskDataEntity>
     {
+        private Dictionary<string, object> lastfetchedDataDict = new Dictionary<string, object>(); // cache Dictionary
+        private readonly string cacheDurationInMinutes;
+        private DateTime lastFetchTimeStamp;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UserDataRepository"/> class.
         /// </summary>
@@ -20,6 +24,7 @@ namespace TaskManagement.Repositories.TaskDetailsData
                 PartitionKeyNames.TaskDetailsDataTable.TaskDataPartition,
                 isFromAzureFunction)
         {
+            this.cacheDurationInMinutes = configuration["CacheDurationInMinutes"];
         }
 
         public async Task<string> GetLastCreatedTaskID()
@@ -39,14 +44,14 @@ namespace TaskManagement.Repositories.TaskDetailsData
         public async Task<Dictionary<string, string>> GetAllTaskIDAsync()
         {
             var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
-            Dictionary<string, string> allIdsandTitles = allRows.ToDictionary(x => x.TaskName, y => y.TaskTitle);        
+            Dictionary<string, string> allIdsandTitles = allRows.ToDictionary(x => x.TaskName, y => y.TaskTitle);
             return allIdsandTitles;
         }
 
         public async Task<List<TaskDataEntity>> GetUserTasksAsync(string email)
         {
             var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
-            List<TaskDataEntity> userTasks = allRows.Where(c=>c.TaskAssignedTo == email).ToList();
+            List<TaskDataEntity> userTasks = allRows.Where(c => c.TaskAssignedTo == email).ToList();
             return userTasks;
         }
 
@@ -57,14 +62,63 @@ namespace TaskManagement.Repositories.TaskDetailsData
             List<TaskDataEntity> userTasks = allRows.Where(c => c.TaskAssignedTo == email).ToList();
             return userTasks;
         }
-        
+
 
         public async Task<List<string>> GetAllTaskIDsAndTitles(List<string> ids)
         {
-            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+            var dictKey = "GetAllTaskIDsAndTitles";
+            IEnumerable<TaskDataEntity> allRows;
+            if (IsCachedDataExpired(dictKey))
+            {
+                allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+                this.UpdateCache(dictKey, allRows);
+            }
+            else
+            {
+                allRows = (IEnumerable<TaskDataEntity>)this.lastfetchedDataDict[dictKey];
+            }
             List<TaskDataEntity> filteredRows = allRows.Where(c => ids.Contains(c.TaskName)).ToList();
             List<string> IdsAndTitles = filteredRows.Select(x => x.TaskName + " - " + x.TaskTitle).ToList();
             return IdsAndTitles;
+        }
+
+        private bool IsCachedDataExpired(string cacheKey)
+        {
+            if (!this.lastfetchedDataDict.ContainsKey(cacheKey))
+            {
+                return true;
+            }
+            else
+            {
+                var currentTime = DateTime.Now;
+                int.TryParse(this.cacheDurationInMinutes, out int cacheDuration);
+                if (currentTime.AddMinutes(-cacheDuration) > this.lastFetchTimeStamp)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void UpdateCache<T>(string cacheKey, T result)
+        {
+            // Make sure that we are storing not null values.
+            if (result == null)
+            {
+                return;
+            }
+
+            this.lastFetchTimeStamp = DateTime.Now;
+
+            if (!this.lastfetchedDataDict.ContainsKey(cacheKey))
+            {
+                this.lastfetchedDataDict.Add(cacheKey, result);
+            }
+            else
+            {
+                this.lastfetchedDataDict[cacheKey] = result;
+            }
         }
     }
 }

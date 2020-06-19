@@ -79,8 +79,10 @@ namespace TaskManagement.Helper
                 await DBHelper.SaveTaskAttachements(taskInfo, configuration);
                 //await DBHelper.SaveSubscribersInfo(taskInfo, configuration);
                 //await DBHelper.SaveDependency(taskInfo, configuration);
-                await DBHelper.SaveActivity(taskInfo, configuration);
-
+                if (!string.IsNullOrEmpty(taskInfo.activityComment))
+                {
+                    await DBHelper.SaveActivity(taskInfo, configuration);
+                }
             };
 
         }
