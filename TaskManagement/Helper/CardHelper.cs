@@ -54,9 +54,11 @@ namespace TaskManagement.Helper
                                     new AdaptiveImage()
                                     {
                                         Url = new Uri(_configuration["BaseUri"] + "/Images/" + taskInfo.priority + ".png")
+
                                     }
                                 },
-                                Width = "stretch"
+                                Width = "50px",
+                                
                             }
                         }
                     },
@@ -82,7 +84,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = taskInfo.taskAssignedTo,
+                                        Text = taskInfo.taskAssignedTo                                        
                                     }
                                 }
                             }

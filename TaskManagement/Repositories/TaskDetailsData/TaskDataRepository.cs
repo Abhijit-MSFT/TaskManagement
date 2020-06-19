@@ -36,12 +36,28 @@ namespace TaskManagement.Repositories.TaskDetailsData
             return taskDataEntity;
         }
 
-        public async Task<Dictionary<string, string>> GetAllTaskTDAsync()
+        public async Task<Dictionary<string, string>> GetAllTaskIDAsync()
         {
             var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
             Dictionary<string, string> allIdsandTitles = allRows.ToDictionary(x => x.TaskName, y => y.TaskTitle);        
             return allIdsandTitles;
         }
+
+        public async Task<List<TaskDataEntity>> GetUserTasksAsync(string email)
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+            List<TaskDataEntity> userTasks = allRows.Where(c=>c.TaskAssignedTo == email).ToList();
+            return userTasks;
+        }
+
+        //change below query to get subscribed tasks
+        public async Task<List<TaskDataEntity>> GetUserSubscribedTasksAsync(string email)
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.TaskDetailsDataTable.TableName);
+            List<TaskDataEntity> userTasks = allRows.Where(c => c.TaskAssignedTo == email).ToList();
+            return userTasks;
+        }
+        
 
         public async Task<List<string>> GetAllTaskIDsAndTitles(List<string> ids)
         {

@@ -206,7 +206,7 @@ namespace TaskManagement.Helper
             PageLoadData pageLoadData = new PageLoadData
             {
                 //NewTaskId = common.GetNewTaskID(),
-                ListofTaskIDs = await taskDataRepository.GetAllTaskTDAsync(),
+                ListofTaskIDs = await taskDataRepository.GetAllTaskIDAsync(),
                 //TeamMembers = await DBHelper.GetTeamMembers(turnContext)
             };
             return pageLoadData;
