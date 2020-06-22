@@ -20,16 +20,22 @@ namespace TaskManagement.Controllers
     public class HomeController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly TaskDataRepository _taskDataRepository;
+        private readonly TaskAttachementsRepository _taskAttachementsRepository;
+        private readonly TaskActivityRepository _taskActivityRepository;        
+        
         public HomeController(IConfiguration configuration)
         {
             _configuration = configuration;
+            _taskDataRepository = new TaskDataRepository(_configuration);
+            _taskAttachementsRepository = new TaskAttachementsRepository(_configuration);
+            _taskActivityRepository = new TaskActivityRepository(_configuration);
         }
 
         [Route("")]
         public async Task<ActionResult> Index()
-        {
-            TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
-            List<TaskDataEntity> taskDataEntity = await taskDataRepository.GetUserTasksAsync("Gousia Begum");
+        {            
+            List<TaskDataEntity> taskDataEntity = await _taskDataRepository.GetUserTasksAsync("Gousia Begum");
             return View(taskDataEntity);
         }
 
@@ -70,7 +76,6 @@ namespace TaskManagement.Controllers
                 taskInfo.dependentOn = new List<string>() { parentTaskId };
                 ViewBag.action = createType;
                 ViewBag.parentTaskName = parentTaskId;
-
             }
 
             if (createType == "Blocks")
@@ -86,7 +91,6 @@ namespace TaskManagement.Controllers
         [Route("createNewTask/{createType}/{taskId}")]
         public async Task<ActionResult> CreateNewTaskFromOld(string createType, string taskId)
         {
-
             PageLoadData pageLoadData = await DBHelper.GetPageLoadDataAsync(_configuration);
             Common common = new Common(_configuration);
             string newTaskId = common.GetNewTaskID();
@@ -111,13 +115,9 @@ namespace TaskManagement.Controllers
         [Route("editTask/{taskId}")]
         public async Task<ActionResult> EditTask(Guid taskId)
         {
-            TaskDataRepository taskDataRepository = new TaskDataRepository(_configuration);
-            TaskAttachementsRepository taskAttachementsRepository = new TaskAttachementsRepository(_configuration);
-            TaskActivityRepository taskActivityRepository = new TaskActivityRepository(_configuration);
-
-            TaskDataEntity taskdataEntity = await taskDataRepository.GetTaskDetailsByTaskIDAsync(taskId);
-            TaskAttachementsEntity taskAttachementsEntity = await taskAttachementsRepository.GetTaskAttachementDetailsByTaskIDAsync(taskId);
-            List<TaskActivityEntity> taskActivityEntity = await taskActivityRepository.GetTaskActivityDetailsByTaskIDAsync(taskId);
+            TaskDataEntity taskdataEntity = await _taskDataRepository.GetTaskDetailsByTaskIDAsync(taskId);
+            TaskAttachementsEntity taskAttachementsEntity = await _taskAttachementsRepository.GetTaskAttachementDetailsByTaskIDAsync(taskId);
+            List<TaskActivityEntity> taskActivityEntity = await _taskActivityRepository.GetTaskActivityDetailsByTaskIDAsync(taskId);
             var sortedActivityList = taskActivityEntity.OrderByDescending(x => x.Timestamp).ToList();
             var taskList = (await DBHelper.GetPageLoadDataAsync(_configuration)).ListofTaskIDs;
             TaskInfo taskInfo = new TaskInfo
@@ -137,8 +137,7 @@ namespace TaskManagement.Controllers
                 attachementURL = taskAttachementsEntity.AttachementURL,
                 subscribers = taskdataEntity.Subscribers.ToList(),
                 subscribersList = this.GetListOfUser(),
-                dependentOn = taskdataEntity.Dependencies.ToList(),
-                //ListOfDependsOnAndBlocks = this.GetTaskListSelectItems(taskList),
+                dependentOn = taskdataEntity.Dependencies.ToList(),                
                 dependentOnList = this.GetTaskListSelectItems(taskList),
                 blocks = taskdataEntity.Blocks.ToList(),
                 blocksList = this.GetTaskListSelectItems(taskList),
@@ -185,7 +184,8 @@ namespace TaskManagement.Controllers
                new SelectListItem(){Value = "Abhijit Jodbhavi", Text ="Abhijit Jodbhavi" },
                new SelectListItem(){Value = "Gousia Begum", Text ="Gousia Begum" },
                new SelectListItem(){Value = "Trinetra Kumar", Text ="Trinetra Kumar" },
-               new SelectListItem(){Value =  "Subhasish Pani", Text = "Subhasish Pani" }
+               new SelectListItem(){Value =  "Subhasish Pani", Text = "Subhasish Pani" },
+               new SelectListItem(){Value =  "VaraPrasad SSLN", Text = "VaraPrasad SSLN" }
             };
         }
 

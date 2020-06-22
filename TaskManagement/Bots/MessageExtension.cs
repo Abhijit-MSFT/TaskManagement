@@ -15,26 +15,52 @@ using TaskManagement.Helper;
 using AdaptiveCards;
 using TaskManagement.Repositories.TaskDetailsData;
 using System.Linq;
+using TaskManagement.Repositories.UserDetailsData;
+using TaskManagement.Repositories;
 
 namespace TaskManagement
-{
-    //TaskManagement
+{    
     public class MessageExtension : TeamsActivityHandler
     {
         private readonly IConfiguration _configuration;
         private readonly CardHelper _cardHelper;
         private readonly TaskDataRepository _taskDataRepository;
+        private readonly UserDetailsRepository _userDetailsRepository;
 
         public MessageExtension(IConfiguration configuration)
         {
             _configuration = configuration;
             _cardHelper = new CardHelper(_configuration);
             _taskDataRepository = new TaskDataRepository(_configuration);
+            _userDetailsRepository = new UserDetailsRepository(_configuration);
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
+            if(turnContext.Activity.Text == "Add me")
+            {
+                var member = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
+                var user = new UserDetailsEntity()
+                {
+                    Name = (member.Name).Split(" ")[0],
+                    UserUniqueID = turnContext.Activity.From.Id,
+                    UserID = turnContext.Activity.From.AadObjectId,
+                    EmailId = member.Email,
+                    ProfilePictureURL = string.Empty,
+                    RowKey = Guid.NewGuid().ToString(),
+                    PartitionKey = PartitionKeyNames.UserDetailsDataTable.TableName
+                };
 
+                await _userDetailsRepository.CreateOrUpdateAsync(user);
+
+                var reply = MessageFactory.Text("Your data is recorded !");
+                await turnContext.SendActivityAsync(reply, cancellationToken);
+            }
+            else
+            {
+                var reply = MessageFactory.Text("Welcome to Task Manager, Try crating new Tasks using Messaging extension");
+                await turnContext.SendActivityAsync(reply, cancellationToken);
+            }
         }
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
@@ -91,13 +117,17 @@ namespace TaskManagement
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
-                        taskInfo.akkTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
+                        taskInfo.allDependentTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
+                        taskInfo.allBlocksTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.blocks);
                         await DBHelper.SaveTaskInfo(taskInfo, _configuration);
 
                         var typingActivity = MessageFactory.Text(string.Empty);
                         typingActivity.Type = ActivityTypes.Typing;
                         await turnContext.SendActivityAsync(typingActivity);
+
                         var adaptiveCard = _cardHelper.TaskInformationCard(taskInfo);
+                        //below line is to send card to subscribers
+                        await Common.SendNotification(turnContext, cancellationToken, _configuration, "v-abjodh@microsoft.com", adaptiveCard);
                         var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
                         var result = await turnContext.SendActivityAsync(reply, cancellationToken);
                         //reply.Id = "f:8691943635866570258";
@@ -144,7 +174,8 @@ namespace TaskManagement
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
-                        taskInfo.akkTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
+                        taskInfo.allDependentTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
+                        taskInfo.allBlocksTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.blocks);
                         CardHelper cardhelper = new CardHelper(_configuration);
                         var attPath = taskInfo.attachements;
                         await DBHelper.SaveTaskInfo(taskInfo, _configuration);
@@ -272,7 +303,9 @@ namespace TaskManagement
                 taskID = task.TaskId,
                 taskNumber = task.TaskName,
                 blocks = task.Blocks.ToList(),
-                akkTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(task.Dependencies.ToList()),
+                allDependentTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(task.Dependencies.ToList()),
+                allBlocksTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(task.Blocks.ToList()),
+
 
             };
         }
