@@ -19,13 +19,16 @@ using TaskManagement.Repositories.UserDetailsData;
 using TaskManagement.Repositories;
 
 namespace TaskManagement
-{    
+{
     public class MessageExtension : TeamsActivityHandler
     {
         private readonly IConfiguration _configuration;
         private readonly CardHelper _cardHelper;
         private readonly TaskDataRepository _taskDataRepository;
         private readonly UserDetailsRepository _userDetailsRepository;
+        private const string PersonalType = "personal";
+        private const string ChannelType = "channel";
+        private const string groupChatType = "groupChat";
 
         public MessageExtension(IConfiguration configuration)
         {
@@ -37,14 +40,14 @@ namespace TaskManagement
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            if(turnContext.Activity.Text == "Add me")
+            if (turnContext.Activity.Text == "Add me")
             {
                 var member = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
                 var user = new UserDetailsEntity()
                 {
                     Name = (member.Name).Split(" ")[0],
                     UserUniqueID = turnContext.Activity.From.Id,
-                    UserID = turnContext.Activity.From.AadObjectId,
+                    AadId = turnContext.Activity.From.AadObjectId,
                     EmailId = member.Email,
                     ProfilePictureURL = string.Empty,
                     RowKey = Guid.NewGuid().ToString(),
@@ -349,6 +352,75 @@ namespace TaskManagement
 
             //return base.OnTeamsMessagingExtensionCardButtonClickedAsync(turnContext, cardData, cancellationToken);
         }
+
+        /// <summary>
+        /// Send user message to the datebase
+        /// </summary>
+        /// <param name="membersAdded">membersAdded</param>
+        /// <param name="turnContext">turnContext</param>
+        /// <param name="cancellationToken">cancellationToken</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+        }
+
+        /// <summary>
+        /// Invoked when a conversation update activity is received from the channel.
+        /// </summary>
+        /// <param name="turnContext">The context object for this turn.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects
+        /// or threads to receive notice of cancellation.</param>
+        /// <returns>A task that represents the work queued to execute.</returns>
+        protected override async Task OnConversationUpdateActivityAsync(
+            ITurnContext<IConversationUpdateActivity> turnContext,
+            CancellationToken cancellationToken)
+        {
+            // base.OnConversationUpdateActivityAsync is useful when it comes to responding to users being added to or removed from the conversation.
+            // For example, a bot could respond to a user being added by greeting the user.
+            // By default, base.OnConversationUpdateActivityAsync will call <see cref="OnMembersAddedAsync(IList{ChannelAccount}, ITurnContext{IConversationUpdateActivity}, CancellationToken)"/>
+            // if any users have been added or <see cref="OnMembersRemovedAsync(IList{ChannelAccount}, ITurnContext{IConversationUpdateActivity}, CancellationToken)"/>
+            // if any users have been removed. base.OnConversationUpdateActivityAsync checks the member ID so that it only responds to updates regarding members other than the bot itself.
+            await base.OnConversationUpdateActivityAsync(turnContext, cancellationToken);
+
+            var activity = turnContext.Activity;
+            var botId = activity.Recipient.Id;
+
+            // Take action if this event includes the bot being added
+            if (activity.MembersAdded?.FirstOrDefault(p => p.Id == botId) != null)
+            {
+                await this.OnBotAddedAsync(turnContext);
+            }
+
+            // Take action if this event includes the bot being removed
+            if (activity.MembersRemoved?.FirstOrDefault(p => p.Id == botId) != null)
+            {
+                await this.OnBotRemovedAsync(turnContext);
+            }
+        }
+
+        public async Task OnBotAddedAsync(ITurnContext<IConversationUpdateActivity> turnContext)
+        {
+            switch (turnContext.Activity.Conversation.ConversationType)
+            {
+                case ChannelType:
+                case groupChatType:
+
+                    var members = await turnContext.GetConversationMembers();
+                    var teamMembers = TurnContextExtension.AsTeamsChannelAccounts(members).ToList();
+
+                    await _userDetailsRepository.SaveAllUserDetailsInTeams(turnContext, teamMembers);
+                    break;
+                case PersonalType:
+                    await this._userDetailsRepository.SaveUserDetailsAsync(turnContext);
+                    break;
+                default: break;
+            }
+        }
+
+        public async Task OnBotRemovedAsync(ITurnContext<IConversationUpdateActivity> turnContext)
+        {
+        }
+
     }
 
 }
