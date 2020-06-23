@@ -22,8 +22,8 @@ namespace TaskManagement.Controllers
         private readonly IConfiguration _configuration;
         private readonly TaskDataRepository _taskDataRepository;
         private readonly TaskAttachementsRepository _taskAttachementsRepository;
-        private readonly TaskActivityRepository _taskActivityRepository;        
-        
+        private readonly TaskActivityRepository _taskActivityRepository;
+
         public HomeController(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -34,7 +34,7 @@ namespace TaskManagement.Controllers
 
         [Route("")]
         public async Task<ActionResult> Index()
-        {            
+        {
             List<TaskDataEntity> taskDataEntity = await _taskDataRepository.GetUserTasksAsync("Gousia Begum");
             return View(taskDataEntity);
         }
@@ -120,6 +120,14 @@ namespace TaskManagement.Controllers
             List<TaskActivityEntity> taskActivityEntity = await _taskActivityRepository.GetTaskActivityDetailsByTaskIDAsync(taskId);
             var sortedActivityList = taskActivityEntity.OrderByDescending(x => x.Timestamp).ToList();
             var taskList = (await DBHelper.GetPageLoadDataAsync(_configuration)).ListofTaskIDs;
+            ViewBag.priority = taskdataEntity.TaskPriority;
+            ViewBag.assignedTo = taskdataEntity.TaskAssignedTo;
+            ViewBag.status = taskdataEntity.TaskStatus;
+            ViewBag.title = taskdataEntity.TaskTitle;
+            ViewBag.description = taskdataEntity.TaskDescription;
+            ViewBag.subscribers = string.Join(",", taskdataEntity.Subscribers);
+            ViewBag.dependetOn = string.Join(",", taskdataEntity.Dependencies);
+            ViewBag.blocks = string.Join(",", taskdataEntity.Blocks);
             TaskInfo taskInfo = new TaskInfo
             {
                 taskID = taskId,
@@ -137,7 +145,7 @@ namespace TaskManagement.Controllers
                 attachementURL = taskAttachementsEntity.AttachementURL,
                 subscribers = taskdataEntity.Subscribers.ToList(),
                 subscribersList = this.GetListOfUser(),
-                dependentOn = taskdataEntity.Dependencies.ToList(),                
+                dependentOn = taskdataEntity.Dependencies.ToList(),
                 dependentOnList = this.GetTaskListSelectItems(taskList),
                 blocks = taskdataEntity.Blocks.ToList(),
                 blocksList = this.GetTaskListSelectItems(taskList),
