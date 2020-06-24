@@ -16,6 +16,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaskManagement.Repositories;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using TaskManagement.Repositories.UserDetailsData;
 
 namespace TaskManagement.Helper
 {
@@ -191,8 +193,6 @@ namespace TaskManagement.Helper
             }
         }
 
-
-
         private static IEnumerable<TeamsChannelAccount> AsTeamsChannelAccounts(IEnumerable<ChannelAccount> channelAccountList)
         {
             foreach (ChannelAccount channelAccount in channelAccountList)
@@ -212,6 +212,19 @@ namespace TaskManagement.Helper
                 //TeamMembers = await DBHelper.GetTeamMembers(turnContext)
             };
             return pageLoadData;
+        }
+
+        public static async Task<IEnumerable<SelectListItem>> GetListOfUser(IConfiguration configuration)
+        {
+            UserDetailsRepository userDetailsRepository = new UserDetailsRepository(configuration);
+            List<UserDetailsEntity> userDetailsEntity = await userDetailsRepository.GeAllUserDetails();
+            List<SelectListItem> itemList = new List<SelectListItem>();
+            foreach (var item in userDetailsEntity)
+            {
+                string[] name = item.Name.Split();
+                itemList.Add(new SelectListItem() { Value = item.EmailId, Text = name[0] + " " + name[1] });
+            }
+            return itemList;
         }
     }
 }

@@ -65,16 +65,16 @@ namespace TaskManagement.Helper
                 Members = new ChannelAccount[] {
                         new ChannelAccount()
                         {
-                            AadObjectId= user.AadId,
-                            Id=user.UserUniqueID,
-                            Name=user.Name
+                            AadObjectId = user.AadId,
+                            Id = user.UserUniqueID,
+                            Name = user.Name
                         }
                     },
                 TenantId = turnContext.Activity.Conversation.TenantId,
             };
 
 
-            await ((BotFrameworkAdapter)turnContext.Adapter).CreateConversationAsync(teamsChannelId, serviceUrl, credentials, conversationParameters,
+            await ((BotFrameworkAdapter)turnContext.Adapter).CreateConversationAsync(teamsChannelId, user.ServiceUrl, credentials, conversationParameters,
                 async (t1, c1) =>
                 {
                     conversationReference = t1.Activity.GetConversationReference();
