@@ -1,0 +1,118 @@
+﻿
+.table > thead > tr > th {
+    border-bottom: none;
+}
+
+.tdata {
+    height: 40px;
+    padding: 10px !important;
+}
+
+tr {
+    height: 10px;
+    font-size: 14px;
+}
+
+.thead {
+    padding-left: 15px;
+    font-size: 14px;
+}
+
+.pull-right {
+    
+    float: right !important;
+}
+
+.pull-left {
+    margin: 1%;
+    float: left !important;
+}
+
+
+.title {
+    font-size: 25px;
+    margin-left: 5px;
+}
+
+.leftmargin {
+    margin-left: 15px;
+}
+
+.rightmargin {
+    margin-left: 15px;
+}
+
+.table-row {
+    margin: 10px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 3px #ccc;
+    padding: 16px;
+    border-radius: 4px;
+}
+
+.taskboard {
+    padding: 2%;
+}
+
+.rights {
+    margin-right: 70%
+}
+
+th, td {
+    padding: 15px;
+    
+}
+
+.center{
+    text-align:center;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    vertical-align: middle;
+}
+
+.form-group {
+    display: inline-block;
+    padding:2px;
+}
+
+.drp-dwn{
+    padding:0px;
+    margin-right:2px;
+}
+.status{
+    padding-left:10px;
+    padding-right:10px;
+    padding-top:1px;
+    padding-bottom:3px;
+    border-radius:3px;
+    color:white;
+}
+.main{
+    overflow:scroll;
+}
+.open {
+    background-color: #337ab7;
+}
+.pending {
+    background-color: orange;
+}
+.resolved {
+    background-color: green;
+}
+.orange {
+    background-color: orange;
+}
+.closed {
+    background-color: #ccc;
+}
+.green{
+    color:green;
+}
+.blue{
+    color:blue;
+}
+.red{
+    color:red;
+}
+
