@@ -35,6 +35,185 @@
             }
         });
 
+        function AssignedToChanged() {
+            var oldVal = '@ViewBag.assignedTo';
+            var newVal = $('#taskAssignedTo').val();
+            if (oldVal != newVal) {
+                UpdateActivity("Assignee changed from " + oldVal + " to " + newVal + ".\n", "Assignee");
+            }
+            else {
+                UpdateActivity("", "Assignee");
+            }
+        }
+
+        function StatusChanged() {
+            var oldVal = '@ViewBag.status';
+            var newVal = $('#status').val();
+            if (oldVal != newVal) {
+                UpdateActivity("Status changed from " + oldVal + " to " + newVal + ".\n", "Status");
+            }
+            else {
+                UpdateActivity("", "Status");
+            }
+        }
+
+        function PriorityChanged() {
+            var oldVal = '@ViewBag.priority';
+            var newVal = $('#priority').val();
+            if (oldVal != newVal) {
+                UpdateActivity("Priority changed from " + oldVal + " to " + newVal + ".\n","Priority");
+            }
+            else {
+                UpdateActivity("", "Priority");
+            }
+        }
+
+        function TitleChanged() {
+            var oldVal = '@ViewBag.title';
+            var newVal = $('#title').val();
+            if (oldVal != newVal) {
+                UpdateActivity("Title changed from " + oldVal + " to " + newVal + ".\n", "Title");
+            }
+             else {
+                UpdateActivity("", "Title");
+            }
+        }
+
+        function DescriptionChanged() {
+            var oldVal = '@ViewBag.description';
+            var newVal = $('#description').val();
+            if (oldVal != newVal) {
+                UpdateActivity("Description changed from " + oldVal + " to " + newVal + ".\n", "Description");
+            }
+            else {
+                UpdateActivity("", "Description");
+            }
+        }
+
+        function SubscribersChanged() {
+            var oldVal = '@ViewBag.subscribers';
+            var newVal = $('#subscribers').val();
+            var oldValArr = [];
+            var removedStr = "Removed : ";
+            if (oldVal != '') {
+                oldValArr = oldVal.split(',');
+                $.each(oldValArr, function (key, value) {
+                    var index = $.inArray(value, newVal);
+                    if (index == -1) {
+                        removedStr += value+" ";
+                    }
+                });
+            }
+
+            var addedString = "Added : ";
+            if (newVal != '') {
+                $.each(newVal, function (key, value) {
+                    var index = $.inArray(value, oldValArr);
+                    if (index == -1) {
+                        addedString += value+" ";
+                    }
+                });
+            }
+
+            if (addedString == 'Added : ' && removedStr == 'Removed : ')
+                UpdateActivity("", "Subscribers");
+            else if (addedString == 'Added : ')
+                UpdateActivity("Subscribers - " + removedStr + ".\n", "Subscribers");
+            else if (removedStr == 'Removed : ')
+                UpdateActivity("Subscribers - " + addedString + ".\n", "Subscribers");
+            else
+                UpdateActivity("Subscribers - " + addedString + removedStr + ".\n", "Subscribers");
+
+        }
+
+        function DepemdemtOnChanged() {
+            var oldVal = '@ViewBag.dependetOn';
+            var newVal = $('#depemdemtOn').val();
+            var oldValArr = [];
+            var removedStr = "Removed : ";
+            if (oldVal != '') {
+                oldValArr = oldVal.split(',');
+                $.each(oldValArr, function (key, value) {
+                    var index = $.inArray(value, newVal);
+                    if (index == -1) {
+                        removedStr += value+" ";
+                    }
+                });
+            }
+
+            var addedString = "Added : ";
+            if (newVal != '') {
+                $.each(newVal, function (key, value) {
+                    var index = $.inArray(value, oldValArr);
+                    if (index == -1) {
+                        addedString += value+" ";
+                    }
+                });
+            }
+
+            if (addedString == 'Added : ' && removedStr == 'Removed : ')
+                UpdateActivity("", "Dependent on");
+            else if (addedString == 'Added : ')
+                UpdateActivity("Dependent on - " + removedStr + ".\n", "Dependent on");
+            else if (removedStr == 'Removed : ')
+                UpdateActivity("Dependent on - " + addedString + ".\n", "Dependent on");
+            else
+                UpdateActivity("Dependent on - " + addedString + removedStr + ".\n", "Dependent on");
+        }
+
+        function BlocksChanged() {
+            var oldVal = '@ViewBag.blocks';
+            var newVal = $('#blocks').val();
+            var oldValArr = [];
+            var removedStr = "Removed : ";
+            if (oldVal != '') {
+                oldValArr = oldVal.split(',');
+                $.each(oldValArr, function (key, value) {
+                    var index = $.inArray(value, newVal);
+                    if (index == -1) {
+                        removedStr += value+" ";
+                    }
+                });
+            }
+
+            var addedString = "Added : ";
+            if (newVal != '') {
+                $.each(newVal, function (key, value) {
+                    var index = $.inArray(value, oldValArr);
+                    if (index == -1) {
+                        addedString += value+" ";
+                    }
+                });
+            }
+
+            if (addedString == 'Added : ' && removedStr == 'Removed : ')
+                UpdateActivity("", "Blocks");
+            else if (addedString == 'Added : ')
+                UpdateActivity("Blocks - " + removedStr + ".\n", "Blocks");
+            else if (removedStr == 'Removed : ')
+                UpdateActivity("Blocks - " + addedString + ".\n", "Blocks");
+            else
+                UpdateActivity("Blocks - " + addedString + removedStr + ".\n", "Blocks");
+        }
+
+        function UpdateActivity(activityMessage, searhString) {
+            if (searhString === '') {
+                $('#activityComment').val($('#activityComment').val() + activityMessage);
+            }
+            else {
+                var commentstr = $('#activityComment').val();
+                var startIndex = commentstr.indexOf(searhString);
+                if (startIndex == -1) {
+                    $('#activityComment').val($('#activityComment').val() + activityMessage);
+                }
+                else {
+                    var endIndex = commentstr.indexOf('.', startIndex);
+                    var substring = commentstr.substring(startIndex, endIndex + 2);
+                    var updatedString = commentstr.replace(substring, activityMessage);
+                    $('#activityComment').val(updatedString);
+                }
+            }
+        }
 
         function UpdateAdaptiveCard() {
             debugger;
@@ -92,7 +271,7 @@
 <body>
     <div class="">
         <div class="">
-            <div class="mb">                
+            <div class="mb">
                 <input type="text" class="tk-no" id="taskNumber" value="@Model.taskNumber" disabled>
                 <input type="hidden" id="taskId" value="@Model.taskID" disabled>
                 <div class="input-grp">
@@ -100,31 +279,31 @@
                 </div>
                 <div class="drp-down">
 
-                    @Html.DropDownListFor(x => Model.taskAssignedTo, new SelectList(Model.assignedToList, "Value", "Text"), htmlAttributes: new { @class = "cs", @id = "taskAssignedTo" })
+                    @Html.DropDownListFor(x => Model.taskAssignedTo, new SelectList(Model.assignedToList, "Value", "Text"), htmlAttributes: new { @class = "cs", @id = "taskAssignedTo", onchange = "AssignedToChanged()" })
                     <span class="sel-chev"></span>
                 </div>
                 <div class="drp-down">
                     <div class="drp-text">Status</div>
 
-                    @Html.DropDownListFor(x => Model.status, new SelectList(Model.statusList, "Value", "Text"), htmlAttributes: new { @class = "cs", @id = "status" })
+                    @Html.DropDownListFor(x => Model.status, new SelectList(Model.statusList, "Value", "Text"), htmlAttributes: new { @class = "cs", @id = "status", onchange = "StatusChanged()" })
 
                     <span class="sel-chev"></span>
                 </div>
                 <div class="drp-down2">
                     <div class="drp-text">Priority</div>
 
-                    @Html.DropDownListFor(x => Model.priority, new SelectList(Model.priorityList, "Value", "Text"), new { @class = "cs", @id = "priority" })
+                    @Html.DropDownListFor(x => Model.priority, new SelectList(Model.priorityList, "Value", "Text"), new { @class = "cs", @id = "priority", onchange = "PriorityChanged()" })
                     <span class="sel-chev"></span>
                 </div>
                 <div class="form-group fg">
                     <label for="title" class="title">Title</label>
-                    @Html.TextBoxFor(model => model.title, htmlAttributes: new { @class = "form-control", @id = "title", maxlength = "30" })
+                    @Html.TextBoxFor(model => model.title, htmlAttributes: new { @class = "form-control", @id = "title", maxlength = "30", onchange = "TitleChanged()" })
 
                     @*<input type="text" class="form-control" id="title" maxlength="30" value="@Model.title">*@
                 </div>
                 <div class="form-group fg">
                     <label for="title-desc" class="description">Description</label>
-                    @Html.TextAreaFor(model => model.description, htmlAttributes: new { @class = "form-control title-desc", @id = "description" })
+                    @Html.TextAreaFor(model => model.description, htmlAttributes: new { @class = "form-control title-desc", @id = "description", onchange = "DescriptionChanged()" })
                     @Html.ValidationMessageFor(model => model.title)
                     @*<textarea class="form-control title-desc" id="description" required>@Model.description</textarea>*@
                 </div>
@@ -144,7 +323,7 @@
                     @*<input type="date" id="dueDate" class="form-control date" value="@Model.dueDate" />*@
                     @*<span class="datee"></span>*@
                 </div>
-                <div class="form-group">                    
+                <div class="form-group">
                     <label for="attachement" class="Attach">Add attachment</label>
                     <input type="file" id="attachement" name="attachement">
                 </div>
@@ -154,16 +333,16 @@
                         @*<span class="Subscribers-icon"></span>*@
                         <label for="Subscribers" class="col-form-label col-form-label-sm subscribers">Subscribers</label>
 
-                        @Html.ListBoxFor(x => Model.subscribers, new MultiSelectList(Model.subscribersList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "subscribers", multiple = "multiple" })
+                        @Html.ListBoxFor(x => Model.subscribers, new MultiSelectList(Model.subscribersList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "subscribers", multiple = "multiple", onchange = "SubscribersChanged()" })
                     </div>
                 </div>
                 <div class="form-group fg">
                     <label for="Depends" class="Depends">Depends On</label>
-                    @Html.ListBoxFor(x => Model.dependentOn, new MultiSelectList(Model.dependentOnList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "depemdemtOn", multiple = "multiple" })
+                    @Html.ListBoxFor(x => Model.dependentOn, new MultiSelectList(Model.dependentOnList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "depemdemtOn", multiple = "multiple", onchange = "DepemdemtOnChanged()" })
                 </div>
                 <div class="form-group fg">
                     <label for="Depends" class="block">Blocks</label>
-                    @Html.ListBoxFor(x => Model.blocks, new MultiSelectList(Model.blocksList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "blocks", multiple = "multiple" })
+                    @Html.ListBoxFor(x => Model.blocks, new MultiSelectList(Model.blocksList, "Value", "Text"), htmlAttributes: new { @class = "form-control selectpicker", @id = "blocks", multiple = "multiple", onchange = "BlocksChanged()" })
                 </div>
                 <div class="activity">
                     <span class="activity-icon"></span>
