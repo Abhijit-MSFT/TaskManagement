@@ -30,18 +30,23 @@ namespace TaskManagement.Repositories.UserDetailsData
 
         public async Task<UserDetailsEntity> GeUserDetails(string emailId)
         {
-            var allRows = await this.GetAllAsync(PartitionKeyNames.UserDetailsDataTable.TableName);
+            var allRows = await this.GeAllUserDetails();
             UserDetailsEntity userDetailsEntity = allRows.Where(c => c.EmailId == emailId).FirstOrDefault();
             return userDetailsEntity;
         }
 
-        public async Task SaveUserDetailsAsync(
-            ITurnContext<IConversationUpdateActivity> turnContext)
+        public async Task<List<UserDetailsEntity>> GeAllUserDetails()
+        {
+            var allRows = await this.GetAllAsync(PartitionKeyNames.UserDetailsDataTable.TableName);            
+            return allRows.ToList();
+        }
+
+        public async Task SaveUserDetailsAsync(ITurnContext<IConversationUpdateActivity> turnContext)
         {
             var userDataEntity = await ParseUserData(turnContext);
             var allUsers = await GetUserDataDictionaryAsync();
 
-            if (userDataEntity != null && !allUsers.ContainsKey(userDataEntity.AadId))
+            if (userDataEntity != null && ! allUsers.ContainsKey(userDataEntity.AadId))
             {
                 await this.CreateOrUpdateAsync(userDataEntity);
             }
@@ -77,8 +82,7 @@ namespace TaskManagement.Repositories.UserDetailsData
             try
             {
                 IConnectorClient connector = turnContext.TurnState.Get<IConnectorClient>();
-                // ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl)  );
-
+                
                 var members = await connector.Conversations.GetConversationMembersAsync(turnContext.Activity.Conversation.Id);
                 return AsTeamsChannelAccounts(members).FirstOrDefault(m => m.Id == turnContext.Activity.From.Id).UserPrincipalName;
             }
@@ -113,10 +117,7 @@ namespace TaskManagement.Repositories.UserDetailsData
             }
         }
 
-        public async Task SaveAllUserDetailsInTeams(
-            ITurnContext<IConversationUpdateActivity> turnContext,
-            IEnumerable<TeamsChannelAccount> members
-            )
+        public async Task SaveAllUserDetailsInTeams(ITurnContext<IConversationUpdateActivity> turnContext, IEnumerable<TeamsChannelAccount> members)
         {
             var allUsers = await GetUserDataDictionaryAsync();
             foreach (var member in members)
@@ -170,5 +171,7 @@ namespace TaskManagement.Repositories.UserDetailsData
 
             return alluser;
         }
+
+        
     }
 }

@@ -45,7 +45,7 @@ namespace TaskManagement
                 var member = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
                 var user = new UserDetailsEntity()
                 {
-                    Name = (member.Name).Split(" ")[0],
+                    Name = (member.Name).Split(" ")[0], //indsert proper name 
                     UserUniqueID = turnContext.Activity.From.Id,
                     AadId = turnContext.Activity.From.AadObjectId,
                     EmailId = member.Email,
@@ -186,8 +186,13 @@ namespace TaskManagement
                         typingActivity.Type = ActivityTypes.Typing;
                         await turnContext.SendActivityAsync(typingActivity);
                         var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
-                        var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
-                        await turnContext.SendActivityAsync(reply, cancellationToken);
+                        foreach (var item in taskInfo.subscribers)
+                        {
+                            await Common.SendNotification(turnContext, cancellationToken, _configuration, "v-abjodh@microsoft.com", adaptiveCard);
+                        }
+                        
+                        //var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
+                        //await turnContext.SendActivityAsync(reply, cancellationToken);
 
                     }
                     catch (Exception e)
