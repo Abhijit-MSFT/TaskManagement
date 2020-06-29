@@ -51,12 +51,24 @@ namespace TaskManagement.Helper
                             {
                                 Items= new List<AdaptiveElement>()
                                 {
+                                    new AdaptiveTextBlock()
+                                    {
+                                        Text = "",
+                                    }
+                                },
+                            },
+                            new AdaptiveColumn()
+                            {
+                                Items= new List<AdaptiveElement>()
+                                {
                                     new AdaptiveImage()
                                     {
                                         Url = new Uri(_configuration["BaseUri"] + "/Images/" + taskInfo.priority + ".png")
+
                                     }
                                 },
-                                Width = "stretch"
+                                Width = "60px",
+                                
                             }
                         }
                     },
@@ -82,7 +94,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = taskInfo.taskAssignedTo,
+                                        Text = taskInfo.taskAssignedTo                                        
                                     }
                                 }
                             }
@@ -98,7 +110,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text ="Progress:",
+                                        Text ="Status:",
                                         Size = AdaptiveTextSize.Medium
                                     }
                                 },
@@ -127,7 +139,7 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text ="Depends on:",
+                                        Text ="Depends on: ",
                                         Size = AdaptiveTextSize.Medium,
                                     }
                                 },
@@ -139,7 +151,8 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = taskInfo.akkTaskIDs == null ? " " : string.Join(", ", taskInfo.akkTaskIDs),
+                                        Text = taskInfo.allDependentTaskIDs == null ? " " : string.Join(", ", taskInfo.allDependentTaskIDs),
+                                        Wrap = true
                                     }
                                 }
                             },
@@ -196,7 +209,8 @@ namespace TaskManagement.Helper
                                 {
                                     new AdaptiveTextBlock()
                                     {
-                                        Text = string.Join(", ", taskInfo.blocks)
+                                        Text = taskInfo.allBlocksTaskIDs == null ? " " : string.Join(", ", taskInfo.allBlocksTaskIDs),
+                                        Wrap = true
                                     }
                                 }
                             },
@@ -230,6 +244,35 @@ namespace TaskManagement.Helper
                                 Width = "auto"
                             }
                         }
+                    },
+                    new AdaptiveColumnSet()
+                    {
+                        Columns = new List<AdaptiveColumn>()
+                        {
+                            new AdaptiveColumn()
+                            {
+                                Items = new List<AdaptiveElement>()
+                                {
+                                    new AdaptiveTextBlock()
+                                    {
+                                        Text ="Due date:",
+                                        Size = AdaptiveTextSize.Medium
+                                    }
+                                },
+                                Width = "auto"
+                            },
+                             new AdaptiveColumn()
+                            {
+                                Items = new List<AdaptiveElement>()
+                                {
+                                    new AdaptiveTextBlock()
+                                    {
+                                        Text = taskInfo.dueDate.ToString("M-dd-yyyy"),
+                                    }
+                                }
+                            }
+
+                        }
                     }
                 },
                 Actions = new List<AdaptiveAction>()
@@ -254,7 +297,5 @@ namespace TaskManagement.Helper
 
             return Card;
         }
-
-
     }
 }

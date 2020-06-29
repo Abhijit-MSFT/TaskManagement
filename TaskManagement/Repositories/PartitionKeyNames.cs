@@ -11,6 +11,25 @@ namespace TaskManagement.Repositories
 
     public class PartitionKeyNames
     {
+
+        /// <summary>
+        /// Users data table partition key names.
+        /// </summary>
+        /// 
+        public static class UserDetailsDataTable
+        {
+            /// <summary>
+            /// Table name for Reflection data table
+            /// </summary>
+            public static readonly string TableName = "UserDetailsData";
+
+            /// <summary>
+            /// Reflection data partition key name.
+            /// </summary>
+            public static readonly string UserDetailsDataPartition = "UserDetailsData";
+        }
+
+
         /// <summary>
         /// Users data table partition key names.
         /// </summary>

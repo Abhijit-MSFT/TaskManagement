@@ -26,7 +26,10 @@ namespace TaskManagement.Model
 
         public string status { get; set; }
         public IEnumerable<SelectListItem> statusList { get; set; }
-        public List<string> akkTaskIDs { get; set; }
+        public List<string> allDependentTaskIDs { get; set; }
+
+        public List<string> allBlocksTaskIDs { get; set; }
+
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime startDate { get; set; }

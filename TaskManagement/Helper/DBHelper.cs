@@ -16,6 +16,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaskManagement.Repositories;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using TaskManagement.Repositories.UserDetailsData;
 
 namespace TaskManagement.Helper
 {
@@ -28,7 +30,7 @@ namespace TaskManagement.Helper
             {
                 var rowKey = Guid.NewGuid();
 
-                if (taskInfo.action == "sendAdaptiveCard" || taskInfo.action == "Depeneds on" || taskInfo.action == "Blocks")
+                if (taskInfo.action == "sendAdaptiveCard" || taskInfo.action == "Depends on" || taskInfo.action == "Blocks")
                 {
                     taskInfo.taskID = Guid.NewGuid();
                     taskInfo.attachementID = Guid.NewGuid();
@@ -79,8 +81,10 @@ namespace TaskManagement.Helper
                 await DBHelper.SaveTaskAttachements(taskInfo, configuration);
                 //await DBHelper.SaveSubscribersInfo(taskInfo, configuration);
                 //await DBHelper.SaveDependency(taskInfo, configuration);
-                await DBHelper.SaveActivity(taskInfo, configuration);
-
+                if (!string.IsNullOrEmpty(taskInfo.activityComment))
+                {
+                    await DBHelper.SaveActivity(taskInfo, configuration);
+                }
             };
 
         }
@@ -189,8 +193,6 @@ namespace TaskManagement.Helper
             }
         }
 
-
-
         private static IEnumerable<TeamsChannelAccount> AsTeamsChannelAccounts(IEnumerable<ChannelAccount> channelAccountList)
         {
             foreach (ChannelAccount channelAccount in channelAccountList)
@@ -206,10 +208,23 @@ namespace TaskManagement.Helper
             PageLoadData pageLoadData = new PageLoadData
             {
                 //NewTaskId = common.GetNewTaskID(),
-                ListofTaskIDs = await taskDataRepository.GetAllTaskTDAsync(),
+                ListofTaskIDs = await taskDataRepository.GetAllTaskIDAsync(),
                 //TeamMembers = await DBHelper.GetTeamMembers(turnContext)
             };
             return pageLoadData;
+        }
+
+        public static async Task<IEnumerable<SelectListItem>> GetListOfUser(IConfiguration configuration)
+        {
+            UserDetailsRepository userDetailsRepository = new UserDetailsRepository(configuration);
+            List<UserDetailsEntity> userDetailsEntity = await userDetailsRepository.GeAllUserDetails();
+            List<SelectListItem> itemList = new List<SelectListItem>();
+            foreach (var item in userDetailsEntity)
+            {
+                string[] name = item.Name.Split();
+                itemList.Add(new SelectListItem() { Value = item.EmailId, Text = name[0] + " " + name[1] });
+            }
+            return itemList;
         }
     }
 }

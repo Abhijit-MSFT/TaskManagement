@@ -201,7 +201,7 @@ input#attachement {
 .activity {
     background-color: whitesmoke;
     width: 100%;
-    margin-top:2rem;
+    margin-top: 2rem;
 }
 
 .activity-icon::before {
@@ -246,10 +246,12 @@ span.act {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     font-weight: bold;
 }
+
 .cm-time {
     font-size: 12px;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
+
 .save {
     background-color: #6264a7;
     width: auto;
@@ -260,7 +262,7 @@ span.act {
     outline: none;
     border: none;
     font-size: 14px;
-    border-radius:2px;
+    border-radius: 2px;
 }
 
 .mf {
