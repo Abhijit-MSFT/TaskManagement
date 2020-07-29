@@ -126,6 +126,15 @@ namespace TaskManagement.Controllers
             var taskList = (await DBHelper.GetPageLoadDataAsync(_configuration)).ListofTaskIDs;
             var userList = await DBHelper.GetListOfUser(_configuration);
             var listofTasks = this.GetTaskListSelectItems(taskList);
+            ViewBag.priority = taskdataEntity.TaskPriority;
+            ViewBag.assignedTo = taskdataEntity.TaskAssignedTo;
+            ViewBag.status = taskdataEntity.TaskStatus;
+            ViewBag.title = taskdataEntity.TaskTitle;
+            ViewBag.description = taskdataEntity.TaskDescription;
+            ViewBag.subscribers = string.Join(",", taskdataEntity.Subscribers);
+            ViewBag.dependetOn = string.Join(",", taskdataEntity.Dependencies);
+            ViewBag.blocks = string.Join(",", taskdataEntity.Blocks);
+
             TaskInfo taskInfo = new TaskInfo
             {
                 taskID = taskId,

@@ -20,11 +20,11 @@ namespace TaskManagement.Helper
 {
     public class Common
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration _configuration;        
 
         public Common(IConfiguration configuration)
         {
-            _configuration = configuration;
+            _configuration = configuration;            
         }
 
         public string GetNewTaskID()
@@ -54,10 +54,8 @@ namespace TaskManagement.Helper
             var serviceUrl = turnContext.Activity.ServiceUrl;
             var credentials = new MicrosoftAppCredentials(id, pass);
             ConversationReference conversationReference = null;
-
             var user = await GetUserId(userEmail, configuration);
             var proactiveMessage = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = card });
-
             var conversationParameters = new ConversationParameters
             {
                 IsGroup = false,
@@ -68,13 +66,15 @@ namespace TaskManagement.Helper
                             AadObjectId = user.AadId,
                             Id = user.UserUniqueID,
                             Name = user.Name
+                            //  AadObjectId = user.AadId,
+                            //Id = turnContext.Activity.From.Id,
+                            //Name = user.Name
                         }
                     },
                 TenantId = turnContext.Activity.Conversation.TenantId,
             };
 
-
-            await ((BotFrameworkAdapter)turnContext.Adapter).CreateConversationAsync(teamsChannelId, user.ServiceUrl, credentials, conversationParameters,
+            await ((BotFrameworkAdapter)turnContext.Adapter).CreateConversationAsync(teamsChannelId, serviceUrl, credentials, conversationParameters,
                 async (t1, c1) =>
                 {
                     conversationReference = t1.Activity.GetConversationReference();
@@ -89,21 +89,19 @@ namespace TaskManagement.Helper
                             }
                             catch (Exception e)
                             {
-
                                 Console.WriteLine(e);
                             }
                         },
                         cancellationToken);
                 },
-                        cancellationToken);
+                        cancellationToken);        
         }
 
         public static async Task<UserDetailsEntity> GetUserId(string userEmail, IConfiguration configuration)
         {
-            var managerId = userEmail;
             UserDetailsRepository userDetailsDataRepository = new UserDetailsRepository(configuration);
 
-            UserDetailsEntity manager = await userDetailsDataRepository.GeUserDetails(managerId.ToLower());
+            UserDetailsEntity manager = await userDetailsDataRepository.GeUserDetails(userEmail.ToLower());
 
             return manager ?? null;
         }

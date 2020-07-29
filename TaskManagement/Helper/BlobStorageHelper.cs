@@ -16,7 +16,6 @@ namespace TaskManagement.Helper
         public BlobStorageHelper(IConfiguration configuration)
         {
             _configuration = configuration;
-
         }
 
         public async Task<string> GetImageUrl(string imageFile)
