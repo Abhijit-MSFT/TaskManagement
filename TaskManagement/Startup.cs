@@ -10,7 +10,8 @@ using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using TaskManagement.Helper;
+using TaskManagement.Model;
 
 namespace TaskManagement
 {
@@ -26,15 +27,17 @@ namespace TaskManagement
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers();  
             services.AddMvc();
+
 
             // Create the Bot Framework Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
-            //services.AddSingleton<QuestionsDataRepository>();
-            //services.AddSingleton<ReflectionDataRepository>();
+
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, MessageExtension>();
+            //services.AddHostedService<SubscriptionManager>();
+            //services.AddSingleton<MessageParserBase, ChatMessageParser>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

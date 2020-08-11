@@ -221,8 +221,9 @@ namespace TaskManagement.Helper
             List<SelectListItem> itemList = new List<SelectListItem>();
             foreach (var item in userDetailsEntity)
             {
-                string[] name = item.Name.Split();
-                itemList.Add(new SelectListItem() { Value = item.EmailId, Text = name[0] + " " + name[1] });
+                string[] names = item.Name.Split();
+                string name = names.Count() > 1 ? names[0] + " " + names[1] : null;
+                itemList.Add(new SelectListItem() { Value = item.EmailId, Text = name });
             }
             return itemList;
         }

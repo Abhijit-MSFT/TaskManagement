@@ -18,6 +18,8 @@
     <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.7" />
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.9.1" />
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Graph.Beta" Version="0.19.0-preview" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.15.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
     <PackageReference Include="ObjectsComparer" Version="1.4.1" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />

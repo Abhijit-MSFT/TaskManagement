@@ -1,8 +1,8 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.5",
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.7/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.7",
   "version": "1.0.0",
-  "id": "01fe88e4-2a92-4b6c-a4bd-1aa12fb116ed",
+  "id": "255238d5-ee6f-4efb-9b70-0882127e08aa",
   "packageName": "com.contoso.TaskManagement",
   "developer": {
     "name": "Contoso",
@@ -27,8 +27,8 @@
     {
       "entityId": "myTasks",
       "name": "My Tasks",
-      "contentUrl": "https://ed9714d7a863.ngrok.io",
-      "websiteUrl": "https://ed9714d7a863.ngrok.io",
+      "contentUrl": "https://e4e81ff59805.ngrok.io",
+      "websiteUrl": "https://e4e81ff59805.ngrok.io",
       "scopes": [
         "personal"
       ]
@@ -36,9 +36,8 @@
   ],
   "bots": [
     {
-      "botId": "01fe88e4-2a92-4b6c-a4bd-1aa12fb116ed",
+      "botId": "ee733610-f70c-44f7-92c5-ed5af9d776b5",
       "scopes": [
-        "personal",
         "team",
         "groupchat"
       ]
@@ -46,7 +45,7 @@
   ],
   "composeExtensions": [
     {
-      "botId": "01fe88e4-2a92-4b6c-a4bd-1aa12fb116ed",
+      "botId": "255238d5-ee6f-4efb-9b70-0882127e08aa",
       "canUpdateConfiguration": false,
       "commands": [
         {
@@ -91,5 +90,13 @@
     "identity",
     "messageTeamMembers"
   ],
-  "validDomains": [ "*.ngrok.io" ]
+  "validDomains": [ "*.ngrok.io" ],
+
+  "webApplicationInfo": {
+    "id": "255238d5-ee6f-4efb-9b70-0882127e08aa",
+    "resource": "https://AkjRscBasedStoreApp",
+    "applicationPermissions": [
+      "ChannelMessage.Read.Group"
+    ]
+  }
 }

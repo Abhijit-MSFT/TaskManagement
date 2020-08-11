@@ -119,6 +119,8 @@ namespace TaskManagement
                     {
                         var name = (turnContext.Activity.From.Name).Split();
                         taskInfo.taskCreatedBy = name[0] + ' ' + name[1];
+                        List<string> emailids = new List<string>();
+                        
                         taskInfo.taskCreatedByEmail = await DBHelper.GetUserEmailId(turnContext);
                         taskInfo.allDependentTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
                         taskInfo.allBlocksTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.blocks);
@@ -127,23 +129,23 @@ namespace TaskManagement
                         var typingActivity = MessageFactory.Text(string.Empty);
                         typingActivity.Type = ActivityTypes.Typing;
                         await turnContext.SendActivityAsync(typingActivity);
-
                         var adaptiveCard = _cardHelper.TaskInformationCard(taskInfo);
-                        //below line is to send card to subscribers
-                        await Common.SendNotification(turnContext, cancellationToken, _configuration, "v-abjodh@microsoft.com", adaptiveCard);
+
+                        foreach (var email in taskInfo.subscribers)
+                        {
+                            await Common.SendNotification(turnContext, cancellationToken, _configuration, email, adaptiveCard);
+                        }
+
+                        if(taskInfo.taskAssignedTo != taskInfo.taskCreatedByEmail)
+                        {
+                            await Common.SendNotification(turnContext, cancellationToken, _configuration, taskInfo.taskCreatedByEmail, adaptiveCard);
+                        }
+                        
+                        
+                        
                         var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
                         var result = await turnContext.SendActivityAsync(reply, cancellationToken);
-                        //reply.Id = "f:8691943635866570258";
-                        //await turnContext.UpdateActivityAsync(reply, cancellationToken);
-                        //if (string.IsNullOrEmpty(taskInfo.ParentTaskName))
-                        //{ 
-
-                        //}
-
-                        //var newActivity = MessageFactory.Text("The new text for the activity");
-                        //message.Id = turnContext.Activity.ReplyToId;
-                        //await turnContext.UpdateActivityAsync(message, cancellationToken);
-
+                        reply.Id = "1594196918362";
                     }
                     catch (Exception e)
                     {
@@ -186,13 +188,22 @@ namespace TaskManagement
                         typingActivity.Type = ActivityTypes.Typing;
                         await turnContext.SendActivityAsync(typingActivity);
                         var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
+
                         foreach (var item in taskInfo.subscribers)
                         {
-                            await Common.SendNotification(turnContext, cancellationToken, _configuration, "v-abjodh@microsoft.com", adaptiveCard);
+                            await Common.SendNotification(turnContext, cancellationToken, _configuration, item, adaptiveCard);
                         }
-                        
-                        //var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
-                        //await turnContext.SendActivityAsync(reply, cancellationToken);
+
+                        if (taskInfo.taskCreatedByEmail != taskInfo.taskAssignedTo)
+                        {
+                            await Common.SendNotification(turnContext, cancellationToken, _configuration, taskInfo.taskAssignedTo, adaptiveCard);
+                        }
+                        var reply = MessageFactory.Attachment(new Attachment { ContentType = AdaptiveCard.ContentType, Content = adaptiveCard });
+                        var result = await turnContext.SendActivityAsync(reply, cancellationToken);
+                        var id = result.Id;
+                        taskInfo.messageID = result.Id;
+
+
 
                     }
                     catch (Exception e)
@@ -334,7 +345,6 @@ namespace TaskManagement
 
         protected override Task<MessagingExtensionResponse> OnTeamsMessagingExtensionSelectItemAsync(ITurnContext<IInvokeActivity> turnContext, JObject query, CancellationToken cancellationToken)
         {
-
             return Task.FromResult(new MessagingExtensionResponse
             {
                 ComposeExtension = new MessagingExtensionResult
@@ -376,9 +386,7 @@ namespace TaskManagement
         /// <param name="cancellationToken">A cancellation token that can be used by other objects
         /// or threads to receive notice of cancellation.</param>
         /// <returns>A task that represents the work queued to execute.</returns>
-        protected override async Task OnConversationUpdateActivityAsync(
-            ITurnContext<IConversationUpdateActivity> turnContext,
-            CancellationToken cancellationToken)
+        protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             // base.OnConversationUpdateActivityAsync is useful when it comes to responding to users being added to or removed from the conversation.
             // For example, a bot could respond to a user being added by greeting the user.
