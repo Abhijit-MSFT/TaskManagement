@@ -5,7 +5,7 @@
 
 .tdata {
     height: 40px;
-    padding: 10px !important;
+/*    padding: 10px !important;*/
 }
 
 tr {
@@ -19,7 +19,6 @@ tr {
 }
 
 .pull-right {
-    
     float: right !important;
 }
 
@@ -42,6 +41,10 @@ tr {
     margin-left: 15px;
 }
 
+.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th
+{
+    vertical-align:middle!important;
+}
 .table-row {
     margin: 10px;
     border: 1px solid #eee;
@@ -60,59 +63,88 @@ tr {
 
 th, td {
     padding: 15px;
-    
 }
 
-.center{
-    text-align:center;
-}
-
-.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-    vertical-align: middle;
+.center {
+    text-align: center;
 }
 
 .form-group {
     display: inline-block;
-    padding:2px;
+    padding: 2px;
 }
 
-.drp-dwn{
-    padding:0px;
-    margin-right:2px;
+.drp-dwn {
+    padding: 0px;
+    margin-right: 10px;
 }
-.status{
-    padding-left:10px;
-    padding-right:10px;
-    padding-top:1px;
-    padding-bottom:3px;
-    border-radius:3px;
-    color:white;
+
+.status {
+  /*  padding-left: 10px;
+    padding-right: 10px;*/
+    padding-top: 1px;
+    padding-bottom: 3px;
+    border-radius: 3px;
+    color: white;
 }
-.main{
-    overflow:scroll;
+
+.main {
+    overflow-y: scroll;
+    padding: 15px 70px;
 }
+
 .open {
     background-color: #337ab7;
 }
+
 .pending {
     background-color: orange;
 }
+
 .resolved {
     background-color: green;
 }
+
 .orange {
     background-color: orange;
 }
+
 .closed {
     background-color: #ccc;
 }
-.green{
-    color:green;
+
+.green {
+    color: green;
 }
-.blue{
-    color:blue;
+
+.blue {
+    color: blue;
 }
-.red{
-    color:red;
+
+.red {
+    color: red;
+}
+
+.cut-text {
+    max-width: 220px;
+}
+
+td {
+    min-width: 20px;
+    max-width:75px;
+}
+
+.gheader {
+    background-color: #464775;
+    font-size: 14px;
+    color: white;
+}
+.img-user{
+    object-fit:cover;
+    height:30px;
+    width:30px;
+    margin:-2px;
+    border-radius:25px;
+    margin-right:3px;
 }
 

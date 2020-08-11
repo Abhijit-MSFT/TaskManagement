@@ -4,9 +4,119 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <link href="~/CSS/TaskBoard.css" rel="stylesheet" type="text/css" />    
+    <script src="@("https://unpkg.com/@microsoft/teams-js@1.4.1/dist/MicrosoftTeams.min.js")"></script>
+    <link href="~/CSS/TaskBoard.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="text/javascript">
+        var baseUrl = '@ViewBag.BaseURL';
+
+        microsoftTeams.initialize();
+
+        var username = "";
+        microsoftTeams.getContext(function (context) {
+            username = context.upn;
+        });
+
+        function OpenTask(taskId) {
+
+            let taskInfo = {
+                title: null,
+                height: null,
+                width: null,
+                url: null,
+                card: null,
+                fallbackUrl: null,
+                completionBotId: null,
+                userName: username,
+            };
+
+            taskInfo.url = baseUrl + "/edittask/" + taskId + "/" + "tabload";
+            taskInfo.title = "Edit Task";
+            taskInfo.height = 620;
+            taskInfo.width = 800;
+            submitHandler = (err, result) => {
+                console.log(`Submit handler - err: ${err}`);
+                console.log(`Submit handler - result\rName: ${result.name}\rEmail: ${result.email}\rFavorite book: ${result.favoriteBook}`);
+            };
+            microsoftTeams.tasks.startTask(taskInfo, submitHandler);
+        }
+
+        function CreateTask() {
+
+            let taskInfo = {
+                title: null,
+                height: null,
+                width: null,
+                url: null,
+                card: null,
+                fallbackUrl: null,
+                completionBotId: null,
+                userName: username,
+            };
+
+            taskInfo.url = baseUrl + "/createnewtask/tabload";
+            taskInfo.title = "Create Task";
+            taskInfo.height = 620;
+            taskInfo.width = 800;
+            submitHandler = (err, result) => {
+                console.log(`Submit handler - err: ${err}`);
+                console.log(`Submit handler - result\rName: ${result.name}\rEmail: ${result.email}\rFavorite book: ${result.favoriteBook}`);
+            };
+            microsoftTeams.tasks.startTask(taskInfo, submitHandler);
+        }
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#showgrid").hide();
+
+            $("#listView").click(function () {
+                $("#showgrid").hide();
+                $("#showlist").show();
+            })
+
+            $("#gridView").click(function () {
+                $("#showlist").hide();
+                $("#showgrid").show();
+            })
+
+             //Dropdownlist Selectedchange event
+        $("#inputStatus").change(function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetByStatus")',
+                dataType: 'json',
+                data: { status: $("#inputStatus").val() },
+                return: true,
+            });
+        });
+            });
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        /* Create three equal columns that sits next to each other */
+        .column {
+            flex: 33.33%;
+            padding: 5px;
+        }
+
+        .row1{
+            margin-right:20%;
+            margin-left:20%;
+            display:flex;
+        }
+    </style>
+
 </head>
 <body>
+    @if (Model != null)
+    {
     <div class="main">
         <!--Header section-->
         <div class="form-inline">
@@ -18,13 +128,13 @@
                 </div>
                 <div class="form-group">
                     <div class="btn-group leftmargin" role="group">
-                        <button id="btnAdd" type="button" class="btn btn-default" data-toggle="modal">
+                        <button id="listView" type="button" class="btn btn-default" data-toggle="modal">
                             List
                         </button>
-                        @*<button type="button" id="btnEditPreferences" class="btn btn-default" disabled>
-                                Grid
-                            </button>
-                            <button type="button" id="btnDeletePreferences" class="btn btn-default" disabled>
+                        <button type="button" id="gridView" class="btn btn-default">
+                            Grid
+                        </button>
+                        @* <button type="button" id="btnDeletePreferences" class="btn btn-default" disabled>
                                 Calander
                             </button>*@
                     </div>
@@ -42,131 +152,219 @@
                     </div>*@
 
                 <div class="form-group pull-right drp-dwn">
-                    <div class="form-group dropdown">                       
-                            <select id="inputStatus" class="form-control">
-                                <option>Select</option>
-                                <option>Open</option>
-                                <option>Pending</option>
-                                <option>Resolved</option>
-                                <option>Closed</option>
-                            </select>
-                        </div>
+                    <div class="form-group dropdown">
+                        <select id="inputStatus" class="form-control" disabled>
+                            <option>Show-All</option>
+                            <option>Open</option>
+                            <option>Pending</option>
+                            <option>Resolved</option>
+                            <option>Closed</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
         <!--End Header section-->
+        <!--List View-->
         <div class="taskboard">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th class="thead"><span>Task</span> </th>
-                        <th class="thead center"><span>EndDate</span></th>
-                        <th class="thead center"><span>Progress</span></th>
-                        <th class="thead center"><span>Priority</span></th>
-                        <th class="thead center"><span>Subscribers</span></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="table-row">
-                        <td colspan="6">
-                            <button type="button" class="btn btn-default btn-sm">
-                                <span class="glyphicon glyphicon-plus"></span> Add New Task
-                            </button>
-                        </td>
-                    </tr>
-
-                    @foreach (var val in Model)
-                    {
-                        <tr></tr>
+            <div id="showlist">
+                <table id="listData" class="table table-hover">
+                    <thead>
+                        <tr class="list-row">
+                            <th class="thead"><span>Task</span> </th>
+                            <th class="thead center"><span>EndDate</span></th>
+                            <th class="thead center"><span>Progress</span></th>
+                            <th class="thead center"><span>Priority</span></th>
+                            <th class="thead center"><span>Subscribers</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <tr class="table-row">
-                            <td class="tdata">
-                                @val.TaskTitle
-                            </td>
-                            <td class="tdata center">
-                                @val.TaskDueDate.ToShortDateString()
-                            </td>
-                            @if (val.TaskStatus == "open")
-                            {
-                                <td class="tdata center">
-                                    <div>
-                                        <span class="status open"> @val.TaskStatus</span>
-                                    </div>
-                                </td>
-
-                            }
-                            @if (val.TaskStatus == "pending")
-                            {
-                                <td class="tdata center">
-                                    <div>
-                                        <span class="status pending"> @val.TaskStatus</span>
-                                    </div>
-                                </td>
-
-                            }
-                            @if (val.TaskStatus == "resolved")
-                            {
-                                <td class="tdata center">
-                                    <div>
-                                        <span class="status resolved"> @val.TaskStatus</span>
-                                    </div>
-                                </td>
-
-                            }
-                            @if (val.TaskStatus == "closed")
-                            {
-                                <td class="tdata center">
-                                    <div>
-                                        <span class="status closed"> @val.TaskStatus</span>
-                                    </div>
-                                </td>
-
-                            }
-                            @if (val.TaskPriority == "low")
-                            {
-                                <td class="tdata center">
-                                    <div>
-                                        <span class="glyphicon glyphicon-flag green"></span>
-                                    </div>
-                                </td>
-                            }
-                            @if (val.TaskPriority == "medium")
-                            {
-                                <td class="tdata center">
-                                    <div>
-                                        <span class="glyphicon glyphicon-flag blue"></span>
-                                    </div>
-                                </td>
-                            }
-                            @if (val.TaskPriority == "high")
-                            {
-                                <td class="tdata center">
-                                    <div>
-                                        <span class="glyphicon glyphicon-flag red"></span>
-                                    </div>
-                                </td>
-                            }
-
-                            <td class="tdata center">
-                                <!--Need to Add subscribers list here-->
-                            </td>
-                            <td>
-                                <div style="float:left">
-                                    <a href="#">
-                                        <span class="glyphicon glyphicon-plus-sign"></span>
-                                    </a>
-                                </div>
-                                <div style="float:right">
-                                    <a href="#">
-                                        <span class="glyphicon glyphicon-option-vertical"></span>
-                                    </a>
-                                </div>
+                            <td colspan="6">
+                                <button type="button" class="btn btn-default btn-sm" onclick="CreateTask()">
+                                    <span class="glyphicon glyphicon-plus"></span> Add New Task
+                                </button>
                             </td>
                         </tr>
-                    }
-                </tbody>
-            </table>
+
+                        @foreach (var val in Model)
+                        {
+                            <tr>
+                                @Html.HiddenFor(m => val.TaskId)
+                            </tr>
+                            <tr class="table-row">
+                                <td class="tdata cut-text" onclick="OpenTask('@val.TaskId.ToString()')">
+                                    @val.TaskTitle
+                                </td>
+                                <td class="tdata center">
+                                    @val.TaskDueDate.ToShortDateString()
+                                </td>
+
+                                @if (val.TaskStatus.ToLower() == "open")
+                                {
+                                    <td class="tdata center">
+                                        <div>
+                                            <div class="status open"> @val.TaskStatus</div>
+                                        </div>
+                                    </td>
+
+                                }
+                                @if (val.TaskStatus.ToLower() == "pending")
+                                {
+                                    <td class="tdata center">
+                                        <div>
+                                            <div class="status pending"> @val.TaskStatus</div>
+                                        </div>
+                                    </td>
+
+                                }
+                                @if (val.TaskStatus.ToLower() == "resolved")
+                                {
+                                    <td class="tdata center">
+                                        <div>
+                                            <div class="status resolved"> @val.TaskStatus</div>
+                                        </div>
+                                    </td>
+
+                                }
+                                @if (val.TaskStatus.ToLower() == "closed")
+                                {
+                                    <td class="tdata center">
+                                        <div>
+                                            <div class="status closed"> @val.TaskStatus</div>
+                                        </div>
+                                    </td>
+
+                                }
+
+
+                                @if (val.TaskPriority.ToLower() == "low")
+                                {
+                                    <td class="tdata center">
+                                        <div>
+                                            <span class="glyphicon glyphicon-flag green"></span>
+                                        </div>
+                                    </td>
+                                }
+                                @if (val.TaskPriority.ToLower() == "medium")
+                                {
+                                    <td class="tdata center">
+                                        <div>
+                                            <span class="glyphicon glyphicon-flag blue"></span>
+                                        </div>
+                                    </td>
+                                }
+                                @if (val.TaskPriority.ToLower() == "high")
+                                {
+                                    <td class="tdata center">
+                                        <div>
+                                            <span class="glyphicon glyphicon-flag red"></span>
+                                        </div>
+                                    </td>
+                                }
+
+
+                            <td class="tdata center">                               
+                                <div>
+                                        <img src="data:image/jpeg;base64,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" class="img-user" title="VaraPrasad" />
+                                        <img src="data:image/jpeg;base64,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" class="img-user" title="VaraPrasad" />
+                                    
+                                    <div style="float:right;padding-top:4px;">
+                                        <a href="#" onclick="OpenTask('@val.TaskId.ToString()')">
+                                            <span class="glyphicon glyphicon-plus-sign" style="font-size:20px;"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                                <td>
+                                   
+                                    <div style="float:right;">
+                                        <a href="#">
+                                            <span class="glyphicon glyphicon-option-vertical"></span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!--End listview-->
+            <!--Grid View-->
+            <div id="showgrid">
+                <div style="height:50px;">
+                    <button type="button" class="btn btn-default btn-sm pull-right" onclick="CreateTask()">
+                        <span class="glyphicon glyphicon-plus"></span> Add New Task
+                    </button>
+                </div>
+                <table id="gridData" class="table table-bordered">
+                    <thead style="background-color: #6264a7;color: white;">
+                        <tr>
+                            <th class="thead"><span>Task</span> </th>
+                            <th class="thead "><span>EndDate</span></th>
+                            <th class="thead "><span>Progress</span></th>
+                            <th class="thead "><span>Priority</span></th>
+                            <th class="thead "><span>Subscribers</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var val in Model)
+                        {
+                            <tr>
+                                <td onclick="OpenTask('@val.TaskId.ToString()')">
+                                    @val.TaskTitle
+                                </td>
+                                <td>
+                                    @val.TaskDueDate.ToShortDateString()
+                                </td>
+                                <td>
+                                    @val.TaskStatus
+                                </td>
+                                <td>
+                                    @val.TaskPriority
+                                </td>
+                                <td>
+                                    @if (val.Subscribers != null)
+                                    {
+                                        var count = val.Subscribers.Count();
+                                        int i = 1;
+                                        @foreach (var user in val.Subscribers)
+                                        {
+                                            if (i > 2)
+                                            {
+                                                count = count - i + 1;
+                                                <span class="badge">+ @count</span>
+                                                break;
+                                            }
+                                            if (count > 1 && i < 2)
+                                            {
+                                                @user <span>,</span><br/>
+                                                i++;
+                                            }
+                                            else
+                                            {
+                                                    @user 
+                                                i++;
+                                            }
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!--End Gridview-->
         </div>
     </div>
+    }
+    else
+    {
+        <p>
+            Model is empty or there is no data to display
+        </p>
+    }
 </body>
 </html>
