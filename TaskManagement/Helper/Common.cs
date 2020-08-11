@@ -33,7 +33,7 @@ namespace TaskManagement.Helper
             //var lastCreatedID = taskDataRepository.GetLastCreatedTaskID();
 
             Random r = new Random();
-            string NewID = "T" + r.Next(1000, 2000);
+            string NewID = "T" + r.Next(1000, 5000);
             return NewID;
             //using (var rng = new RNGCryptoServiceProvider())
             //{

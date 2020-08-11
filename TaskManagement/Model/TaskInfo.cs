@@ -57,6 +57,7 @@ namespace TaskManagement.Model
         public Guid attachementID { get; set; }
         public Guid subscriberID { get; set; }
         public string ParentTaskName { get; set; }
+        public string userName { get; set; }
 
     }
 
@@ -135,6 +136,11 @@ namespace TaskManagement.Model
         public string Color { get; set; }
 
         public string Description { get; set; }
+    }
+
+    public class TokenResponse
+    {
+        public string access_token { get; set; }
     }
 
 

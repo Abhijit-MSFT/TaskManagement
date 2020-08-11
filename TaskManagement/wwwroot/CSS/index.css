@@ -281,3 +281,21 @@ button.btn.dropdown-toggle.btn-default {
 .btn-light {
     background-color: whitesmoke !important;
 }
+
+.select2-container {
+    width: inherit !important;
+}
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: whitesmoke !important;
+    color: black !important;
+}
+
+.select2-container--default .select2-selection--multiple {
+    background-color: whitesmoke !important;
+    color: black !important;
+}
+
+.select2-selection--single {
+    width: 160px !important;
+}
