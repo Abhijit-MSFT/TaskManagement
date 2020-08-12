@@ -227,6 +227,19 @@ namespace TaskManagement.Helper
             }
             return itemList;
         }
+
+        public static async Task<Dictionary<string, UserDetailsEntity>> GetUserDataDictionaryAsync(IConfiguration configuration)
+        {
+            UserDetailsRepository userDetailsRepository = new UserDetailsRepository(configuration);
+
+            var userDataEntities = await userDetailsRepository.GetAllAsync();
+            var alluser = new Dictionary<string, UserDetailsEntity>();
+            foreach (var userDataEntity in userDataEntities)
+            {
+                alluser.Add(userDataEntity.EmailId, userDataEntity);
+            }
+            return alluser;
+        }
     }
 }
 

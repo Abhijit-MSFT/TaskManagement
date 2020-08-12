@@ -1,24 +1,17 @@
-﻿using System;
+﻿using AdaptiveCards;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Bot.Builder;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using TaskManagement.Helper;
 using TaskManagement.Model;
 using TaskManagement.Repositories.TaskActivityData;
 using TaskManagement.Repositories.TaskAttachementsData;
-using TaskManagement.Repositories.TaskDependencyData;
 using TaskManagement.Repositories.TaskDetailsData;
-using TaskManagement.Repositories.TaskSubscribersData;
-using TaskManagement.Repositories.UserDetailsData;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.IO;
 
 namespace TaskManagement.Controllers
 {
@@ -86,14 +79,37 @@ namespace TaskManagement.Controllers
         public async Task<ActionResult> SaveOrUpdateTask(TaskInfo taskInfo)
         {
             var userList = await DBHelper.GetListOfUser(_configuration);
+            var allUser = await DBHelper.GetUserDataDictionaryAsync(_configuration);
             var name = userList.Where(e => e.Value == taskInfo.userName).Select(e => e.Text).FirstOrDefault();
-
-            taskInfo.taskCreatedBy = name.ToString();
+            taskInfo.taskCreatedBy = name;
             taskInfo.taskCreatedByEmail = taskInfo.userName;
-            taskInfo.allDependentTaskIDs = taskInfo.dependentOn != null ? await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn) : null;
-            taskInfo.allBlocksTaskIDs = taskInfo.dependentOn != null ? await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.blocks) : null;
-
+            taskInfo.allDependentTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.dependentOn);
+            taskInfo.allBlocksTaskIDs = await _taskDataRepository.GetAllTaskIDsAndTitles(taskInfo.blocks);
+            CardHelper cardhelper = new CardHelper(_configuration);
+            var attPath = taskInfo.attachements;
             await DBHelper.SaveTaskInfo(taskInfo, _configuration);
+
+            var adaptiveCard = cardhelper.TaskInformationCard(taskInfo);
+            var cardAttachment = new Attachment()
+            {
+                ContentType = AdaptiveCard.ContentType,
+                Content = adaptiveCard,
+            };
+            var recipietSet = new HashSet<string>();
+            foreach (var item in taskInfo.subscribers)
+            {
+                recipietSet.Add(item);
+            }
+            recipietSet.Add(taskInfo.taskAssignedTo);
+            recipietSet.Add(taskInfo.taskCreatedByEmail);
+
+            foreach (var recipient in recipietSet)
+            {
+                if (allUser.ContainsKey(recipient))
+                {
+                    await Common.SendNotificationAsync(_configuration, cardAttachment, allUser[recipient]);
+                }
+            }
 
             return View(taskInfo);
         }
