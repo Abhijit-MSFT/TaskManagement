@@ -66,6 +66,9 @@ namespace TaskManagement.Repositories.TaskDetailsData
 
         public async Task<List<string>> GetAllTaskIDsAndTitles(List<string> ids)
         {
+            if (ids == null || ids.Count == 0)
+                return null;
+
             var dictKey = "GetAllTaskIDsAndTitles";
             IEnumerable<TaskDataEntity> allRows;
             if (IsCachedDataExpired(dictKey))
